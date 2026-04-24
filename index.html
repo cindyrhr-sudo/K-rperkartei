@@ -149,25 +149,36 @@
                 </div>
             </div>
 
-            <div id="flashcard-ui" class="hidden h-full absolute inset-0 z-20 perspective">
-                <div id="card-inner-element" class="card-inner w-full h-full">
-                    <div class="backface-hidden absolute inset-0 index-card rounded-xl p-8 flex flex-col items-center justify-center text-center">
-                        <div class="text-xs font-bold text-slate-400 mb-4 uppercase tracking-widest">Karteikarte</div>
-                        <h3 id="self-q" class="text-2xl font-bold">Frage?</h3>
-                        <button onclick="flipCard()" class="mt-8 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold">ANTWORT ZEIGEN</button>
-                    </div>
-                    <div class="backface-hidden absolute inset-0 index-card rounded-xl p-8 flex flex-col items-center justify-center text-center rotate-y-180">
-                        <h4 id="self-a" class="text-xl font-black text-emerald-600 mb-4">Antwort</h4>
-                        <p id="self-r" class="text-slate-600 italic mb-8"></p>
-                        <div class="grid grid-cols-2 gap-4 w-full">
-                            <button onclick="handleResult(false)" class="bg-rose-500 text-white py-4 rounded-xl font-bold">FALSCH</button>
-                            <button onclick="handleResult(true)" class="bg-emerald-500 text-white py-4 rounded-xl font-bold">RICHTIG</button>
-                        </div>
-                    </div>
-                </div>
+        <div id="flashcard-ui" class="hidden h-full absolute inset-0 z-20 perspective">
+    <div id="card-inner-element" class="card-inner w-full h-full">
+        
+        <div class="backface-hidden absolute inset-0 index-card rounded-xl p-8 flex flex-col items-center justify-center text-center">
+            <div class="absolute top-6 left-8 right-8 flex justify-between items-center w-[calc(100%-4rem)]">
+                <span id="self-cat" class="bg-slate-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase text-slate-600">Thema</span>
+                <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Antworten</span>
+            </div>
+            
+            <h3 id="self-q" class="text-2xl font-bold mt-10">Frage?</h3>
+            
+            <button onclick="flipCard()" class="mt-10 bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">ANTWORT ZEIGEN</button>
+        </div>
+
+        <div class="backface-hidden absolute inset-0 index-card rounded-xl p-8 flex flex-col items-center justify-center text-center rotate-y-180">
+            <div class="absolute top-6 left-8 right-8 flex justify-between items-center w-[calc(100%-4rem)]">
+                <span id="self-cat-back" class="bg-slate-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase text-slate-600">Thema</span>
+                <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Lösung</span>
+            </div>
+
+            <h4 id="self-a" class="text-2xl font-black text-emerald-600 mt-10 mb-4">Antwort</h4>
+            <p id="self-r" class="text-slate-600 italic mb-10 text-lg"></p>
+            
+            <div class="grid grid-cols-2 gap-4 w-full">
+                <button onclick="handleResult(false)" class="bg-rose-500 text-white py-5 rounded-2xl font-bold shadow-md active:scale-95">FALSCH</button>
+                <button onclick="handleResult(true)" class="bg-emerald-500 text-white py-5 rounded-2xl font-bold shadow-md active:scale-95">RICHTIG</button>
             </div>
         </div>
     </div>
+</div>
 
     <script>
         const cardsData = [
