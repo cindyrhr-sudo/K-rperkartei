@@ -32,7 +32,7 @@
         .bubble-blue   { background-color: rgba(59, 130, 246, 0.1); border-color: #3b82f6; color: #60a5fa; }
         .bubble-purple { background-color: rgba(168, 85, 247, 0.1); border-color: #a855f7; color: #c084fc; }
         .bubble-amber  { background-color: rgba(245, 158, 11, 0.1); border-color: #f59e0b; color: #fbbf24; }
-        .bubble-green  { background-color: rgba(16, 185, 129, 0.1); border-color: #10b981; color: #34d399; }
+        .bubble-green  { background-color: rgba(134, 166, 135, 0.1); border-color: #86a687; color: #86a687; }
 
         /* Animationen - Unverändert */
         @keyframes pulse-box {
@@ -163,20 +163,18 @@
             <button onclick="flipCard()" class="mt-10 bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">ANTWORT ZEIGEN</button>
         </div>
 
-        <div class="backface-hidden absolute inset-0 index-card rounded-xl p-8 flex flex-col items-center justify-center text-center rotate-y-180">
-            <div class="absolute top-6 left-8 right-8 flex justify-between items-center w-[calc(100%-4rem)]">
-                <span id="self-cat-back" class="bg-slate-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase text-slate-600">Thema</span>
-                <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Lösung</span>
-            </div>
+       <div class="backface-hidden absolute inset-0 index-card rounded-xl p-8 flex flex-col items-center justify-center text-center rotate-y-180">
+    <div class="absolute top-6 left-8 right-8 flex justify-between items-center w-[calc(100%-4rem)]">
+        <span id="self-cat-back" class="bg-slate-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase text-slate-600">Thema</span>
+        <span class="text-[10px] font-black uppercase tracking-widest" style="color: #86a687;">Lösung</span>
+    </div>
 
-            <h4 id="self-a" class="text-2xl font-black text-emerald-600 mt-10 mb-4">Antwort</h4>
-            <p id="self-r" class="text-slate-600 italic mb-10 text-lg"></p>
-            
-            <div class="grid grid-cols-2 gap-4 w-full">
-                <button onclick="handleResult(false)" class="bg-rose-500 text-white py-5 rounded-2xl font-bold shadow-md active:scale-95">FALSCH</button>
-                <button onclick="handleResult(true)" class="bg-emerald-500 text-white py-5 rounded-2xl font-bold shadow-md active:scale-95">RICHTIG</button>
-            </div>
-        </div>
+    <h4 id="self-a" class="text-2xl font-black mt-10 mb-4" style="color: #86a687;">Antwort</h4>
+    <p id="self-r" class="text-slate-600 italic mb-10 text-lg"></p>
+    
+    <div class="grid grid-cols-2 gap-4 w-full">
+        <button onclick="handleResult(false)" style="background-color: #d68a8a;" class="text-white py-5 rounded-2xl font-bold shadow-md active:scale-95 transition-all">FALSCH</button>
+        <button onclick="handleResult(true)" style="background-color: #86a687;" class="text-white py-5 rounded-2xl font-bold shadow-md active:scale-95 transition-all">RICHTIG</button>
     </div>
 </div>
 
