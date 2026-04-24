@@ -6,153 +6,140 @@
     <title>Anatomie-Profi Lern-App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --tafel-gruen: #1e3d2f;
-        }
-        body {
-            background-color: var(--tafel-gruen);
-            overflow: hidden;
-            touch-action: manipulation;
-        }
-        .perspective { perspective: 1500px; }
-        .card-inner {
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-style: preserve-3d;
-            height: 100%;
-        }
-        .card-flipped { transform: rotateY(180deg); }
-        .backface-hidden { 
-            backface-visibility: hidden; 
-            -webkit-backface-visibility: hidden;
-        }
-        .rotate-y-180 { transform: rotateY(180deg); }
+        :root { --tafel-gruen: #1e3d2f; }
+        body { background-color: var(--tafel-gruen); height: 100vh; overflow: hidden; touch-action: manipulation; }
         
-        .app-container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding: 1rem;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
+        .perspective { perspective: 1500px; }
+        .card-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; height: 100%; }
+        .card-flipped { transform: rotateY(180deg); }
+        .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
 
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-height: 0;
-            padding-bottom: 1rem;
+        @keyframes confetti-fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
         }
-
+        .confetti { position: absolute; width: 10px; height: 10px; top: -20px; z-index: 210; animation: confetti-fall 3.5s linear forwards; }
+        
+        /* Custom scrollbar for cleaner look on tablets */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="text-slate-800 font-sans">
 
-    <div class="app-container">
-        <!-- Prominenter Boxen-Header -->
-        <div class="w-full grid grid-cols-4 gap-2 mb-4">
-            <div class="bg-white/10 rounded-2xl p-3 border border-white/20 text-center shadow-lg">
-                <div class="text-[10px] uppercase font-black text-white/60 mb-1 tracking-tighter">Box 1</div>
-                <div id="box1-count" class="text-2xl font-black text-white">0</div>
+    <!-- LEVEL UP OVERLAY (GELB HINTERLEGT) -->
+    <div id="level-up-overlay" class="hidden fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 text-center backdrop-blur-md">
+        <div id="confetti-area" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+        <div class="bg-yellow-400 rounded-[3rem] p-10 shadow-2xl max-w-sm w-full relative z-[220] border-8 border-white">
+            <div class="text-7xl mb-4">🏆</div>
+            <h2 class="text-3xl font-black text-yellow-900 mb-2 uppercase italic">Neuer Rang!</h2>
+            <div id="new-rank-name" class="text-2xl font-black text-white mb-8 bg-yellow-600/20 py-4 px-2 rounded-2xl border-2 border-yellow-500/30 uppercase tracking-tighter">Rang Name</div>
+            <button onclick="closeLevelUp()" class="w-full bg-slate-900 text-white text-xl font-bold py-5 rounded-2xl active:scale-95 transition-all shadow-xl">WEITER</button>
+        </div>
+    </div>
+
+    <div class="h-full flex flex-col p-4 md:p-8 max-w-3xl mx-auto overflow-hidden">
+        
+        <!-- LEVEL / RANG LEISTE -->
+        <div id="rank-display" class="bg-black/40 text-yellow-400 text-center font-black py-3 rounded-t-2xl border-t border-x border-white/10 text-xs tracking-[0.2em] uppercase italic shrink-0">
+            LÄDT... ⏳
+        </div>
+
+        <!-- Boxen-Header -->
+        <div class="grid grid-cols-4 gap-2 bg-white/5 p-4 rounded-b-2xl border border-white/10 mb-4 shadow-xl shrink-0">
+            <div class="text-center text-white">
+                <div class="text-[10px] opacity-40 font-bold uppercase mb-1">Box 1</div>
+                <div id="box1-count" class="text-xl font-black">0</div>
             </div>
-            <div class="bg-white/10 rounded-2xl p-3 border border-white/20 text-center">
-                <div class="text-[10px] uppercase font-black text-white/60 mb-1 tracking-tighter">Box 2</div>
-                <div id="box2-count" class="text-2xl font-black text-white">0</div>
+            <div class="text-center text-white">
+                <div class="text-[10px] opacity-40 font-bold uppercase mb-1">Box 2</div>
+                <div id="box2-count" class="text-xl font-black">0</div>
             </div>
-            <div class="bg-white/10 rounded-2xl p-3 border border-white/20 text-center">
-                <div class="text-[10px] uppercase font-black text-white/60 mb-1 tracking-tighter">Box 3</div>
-                <div id="box3-count" class="text-2xl font-black text-white">0</div>
+            <div class="text-center text-white">
+                <div class="text-[10px] opacity-40 font-bold uppercase mb-1">Box 3</div>
+                <div id="box3-count" class="text-xl font-black">0</div>
             </div>
-            <div class="bg-green-500/30 rounded-2xl p-3 border border-green-500/40 text-center shadow-[0_0_15px_rgba(34,197,94,0.3)]">
-                <div class="text-[10px] uppercase font-black text-green-200 mb-1 tracking-tighter">Gelernt</div>
-                <div id="box4-count" class="text-2xl font-black text-green-100">0</div>
+            <div class="text-center text-emerald-400">
+                <div class="text-[10px] opacity-60 font-bold uppercase mb-1 italic text-emerald-500">Gelernt</div>
+                <div id="box4-count" class="text-xl font-black">0</div>
             </div>
         </div>
 
-        <div class="w-full h-3 bg-black/30 rounded-full mb-4 border border-white/5">
-            <div id="progress-bar" class="h-full bg-yellow-400 rounded-full transition-all duration-500 shadow-[0_0_15px_rgba(250,204,21,0.6)]" style="width: 0%"></div>
+        <!-- Progress Bar -->
+        <div class="w-full h-2 bg-black/40 rounded-full mb-4 overflow-hidden border border-white/5 shrink-0">
+            <div id="progress-bar" class="h-full bg-yellow-400 transition-all duration-700" style="width: 0%"></div>
         </div>
 
-        <div class="main-content">
-            <div id="content-area" class="relative h-full w-full max-h-[850px]">
+        <!-- Content Area -->
+        <div class="flex-1 relative min-h-0">
+            <!-- Start-Bildschirm -->
+            <div id="start-screen" class="bg-white rounded-[2.5rem] shadow-2xl p-8 flex flex-col items-center justify-center text-center h-full absolute inset-0 border-8 border-white/10">
+                <div class="text-8xl mb-6">🦴</div>
+                <h2 class="text-3xl font-black mb-4">Challenge bereit!</h2>
+                <p class="text-slate-500 mb-10 text-lg leading-relaxed">Wir trainieren heute 10 Karten aus deinen Boxen.</p>
+                <button onclick="startSession()" class="w-full max-w-xs bg-blue-600 text-white text-2xl font-black py-6 rounded-3xl shadow-lg active:scale-95 transition-all">Sitzung starten</button>
+            </div>
+
+            <!-- Quiz UI -->
+            <div id="interactive-ui" class="hidden bg-white rounded-[2.5rem] shadow-2xl p-6 flex flex-col h-full absolute inset-0 border-8 border-white/10">
+                <div class="flex justify-between items-center mb-4 shrink-0">
+                    <span id="task-cat" class="text-xs font-black text-blue-600 bg-blue-50 px-4 py-1 rounded-full uppercase tracking-widest italic">Kategorie</span>
+                    <span id="task-type-label" class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Typ</span>
+                </div>
                 
-                <!-- START SCREEN -->
-                <div id="start-screen" class="bg-white rounded-[3rem] shadow-2xl p-8 flex flex-col items-center justify-center text-center border-8 border-white/10 h-full absolute inset-0">
-                    <div class="text-8xl mb-6">🦴</div>
-                    <h2 class="text-4xl font-black mb-4 text-slate-800">Die 60-Karten Challenge</h2>
-                    <p class="text-xl text-slate-600 mb-8 leading-relaxed max-w-lg">
-                        Wir trainieren heute 10 Karten: <br>
-                        <span class="font-bold text-blue-600">5 Neue</span>, <span class="font-bold text-orange-600">3 Wiederholungen</span> & <span class="font-bold text-green-600">2 Profi-Karten</span>.
-                    </p>
-                    <button onclick="startSession()" class="w-full max-w-sm bg-blue-600 text-white text-2xl font-bold py-6 rounded-3xl shadow-xl hover:bg-blue-700 active:scale-95 transition-all">Sitzung starten</button>
+                <div class="flex-1 overflow-y-auto no-scrollbar pr-1">
+                    <!-- LILA SZENARIO-KASTEN -->
+                    <div id="task-context" class="mb-5 p-5 bg-indigo-100 rounded-[1.5rem] text-lg text-indigo-900 hidden border-l-[12px] border-indigo-400 shadow-inner">
+                        💡 Szenario...
+                    </div>
+                    <p id="task-q" class="text-2xl font-black leading-tight mb-6 text-slate-800">Frage?</p>
+                    <div id="options-box" class="grid grid-cols-1 gap-3 pb-4"></div>
                 </div>
 
-                <!-- INTERACTIVE UI (MC & Transfer) -->
-                <div id="interactive-ui" class="hidden bg-white rounded-[3rem] shadow-2xl p-6 md:p-10 flex flex-col border-8 border-white/10 h-full absolute inset-0 overflow-hidden">
-                    <div class="flex justify-between items-center mb-4 shrink-0">
-                        <span id="task-cat" class="text-sm uppercase font-black tracking-widest text-blue-500 bg-blue-50 px-4 py-1 rounded-full italic">Kategorie</span>
-                        <span id="task-type-label" class="text-sm px-4 py-1 rounded-full font-bold uppercase">Format</span>
-                    </div>
-                    
-                    <div class="flex-1 flex flex-col justify-center min-h-0 overflow-y-auto no-scrollbar">
-                        <div id="task-context" class="mb-4 p-5 bg-indigo-50 rounded-3xl text-lg md:text-xl text-indigo-900 hidden border-l-8 border-indigo-400 leading-snug">
-                            Szenario...
+                <!-- Feedback Area -->
+                <div id="feedback-box" class="hidden shrink-0 pt-4 mt-2 border-t-2 border-slate-50">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div id="feedback-icon" class="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-2xl">!</div>
+                        <div class="flex-1">
+                            <p id="feedback-title" class="font-black text-xl"></p>
+                            <p id="task-r" class="text-sm text-slate-500 leading-tight"></p>
                         </div>
-                        <p id="task-q" class="text-2xl md:text-3xl font-black leading-tight mb-6 text-slate-800">Frage?</p>
-                        
-                        <div id="options-box" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     </div>
-                    
-                    <div id="feedback-box" class="hidden shrink-0 pt-6 mt-4 border-t-4 border-slate-50">
-                        <div class="flex items-start gap-4 mb-4">
-                            <div id="feedback-icon" class="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shrink-0">!</div>
-                            <div class="flex-1">
-                                <p id="feedback-title" class="font-black text-2xl mb-1"></p>
-                                <p id="task-r" class="text-lg text-slate-600 leading-tight"></p>
-                            </div>
-                        </div>
-                        <button id="btn-next-interactive" onclick="handleNext()" class="w-full bg-slate-800 text-white text-2xl font-bold py-5 rounded-2xl hover:bg-slate-900 transition-all">Nächste Karte</button>
-                    </div>
+                    <button onclick="handleNext()" class="w-full bg-slate-900 text-white text-xl font-bold py-5 rounded-2xl shadow-lg transition-all active:scale-95">WEITER</button>
                 </div>
+            </div>
 
-                <!-- FLASHCARD UI (Self Assessment) -->
-                <div id="flashcard-ui" class="hidden h-full absolute inset-0 perspective">
-                    <div id="card-inner-element" class="card-inner relative w-full h-full">
-                        <div class="backface-hidden absolute inset-0 bg-white rounded-[3rem] p-10 flex flex-col border-8 border-white/10 shadow-2xl cursor-pointer" onclick="flipCard()">
-                            <div class="flex justify-between items-center mb-4">
-                                <span id="self-cat" class="text-sm uppercase font-black text-orange-500 bg-orange-50 px-4 py-1 rounded-full italic">Kategorie</span>
-                                <span class="text-sm bg-slate-100 text-slate-500 px-4 py-1 rounded-full font-bold uppercase">Wissens-Check</span>
-                            </div>
-                            <div class="flex-grow flex items-center justify-center text-center">
-                                <p id="self-q" class="text-3xl md:text-4xl font-black text-slate-800 leading-tight p-4">Frage?</p>
-                            </div>
-                            <div class="text-center p-4 bg-blue-50 rounded-2xl animate-bounce text-blue-600 font-black tracking-widest text-sm italic">TIPPE ZUR ANTWORT</div>
+            <!-- Flashcard UI -->
+            <div id="flashcard-ui" class="hidden h-full absolute inset-0 perspective">
+                <div id="card-inner-element" class="card-inner relative w-full h-full">
+                    <!-- Vorderseite -->
+                    <div class="backface-hidden absolute inset-0 bg-white rounded-[2.5rem] p-8 flex flex-col shadow-2xl cursor-pointer border-8 border-white/10" onclick="flipCard()">
+                        <div class="text-[10px] font-black text-orange-600 bg-orange-50 px-4 py-1 rounded-full uppercase w-max mb-6 tracking-widest italic">Wissens-Check</div>
+                        <div class="flex-grow flex items-center justify-center text-center overflow-y-auto no-scrollbar">
+                            <p id="self-q" class="text-3xl font-black leading-tight">Frage?</p>
                         </div>
-                        <div class="backface-hidden rotate-y-180 absolute inset-0 bg-indigo-600 text-white rounded-[3rem] p-8 flex flex-col shadow-2xl border-8 border-indigo-500">
-                            <div class="flex-grow flex flex-col items-center justify-center text-center overflow-y-auto no-scrollbar">
-                                <p id="self-a" class="text-3xl md:text-4xl font-black mb-6 border-b-2 border-indigo-400 pb-4 w-full">Antwort</p>
-                                <p id="self-r" class="text-lg md:text-xl opacity-95 leading-relaxed bg-black/20 p-6 rounded-[2rem] shadow-inner"></p>
-                            </div>
-                            <div class="shrink-0 pt-6">
-                                <p class="text-center text-xs font-black mb-4 uppercase tracking-widest opacity-70">Warst du sicher?</p>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <button onclick="handleResult(false)" class="bg-rose-500 hover:bg-rose-600 text-white text-2xl font-bold py-6 rounded-2xl shadow-lg transition-all">Nein ✕</button>
-                                    <button onclick="handleResult(true)" class="bg-emerald-500 hover:bg-emerald-600 text-white text-2xl font-bold py-6 rounded-2xl shadow-lg transition-all">Ja ✓</button>
-                                </div>
+                        <div class="text-center text-blue-500 font-black text-xs uppercase tracking-widest animate-pulse italic mt-4">Klick für Antwort</div>
+                    </div>
+                    <!-- Rückseite -->
+                    <div class="backface-hidden rotate-y-180 absolute inset-0 bg-indigo-600 text-white rounded-[2.5rem] p-8 flex flex-col shadow-2xl border-8 border-indigo-500/50">
+                        <div class="flex-grow flex flex-col items-center justify-center text-center overflow-y-auto no-scrollbar py-2">
+                            <p id="self-a" class="text-4xl font-black mb-6 uppercase tracking-tighter border-b-2 border-white/20 pb-4 w-full">Antwort</p>
+                            <p id="self-r" class="text-lg opacity-90 leading-snug italic"></p>
+                        </div>
+                        <div class="pt-6 border-t border-white/10 shrink-0">
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="handleResult(false)" class="bg-rose-500 hover:bg-rose-600 text-white py-5 rounded-2xl font-black shadow-lg">NEIN</button>
+                                <button onclick="handleResult(true)" class="bg-emerald-500 hover:bg-emerald-600 text-white py-5 rounded-2xl font-black shadow-lg">JA!</button>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
     <script>
-        // 60 Karten - Vollständig passend zur Faktenliste
         const cardsData = [
             // --- WIRBELSÄULE (9 Karten) ---
             { id: 1, type: "mc", cat: "Wirbelsäule", q: "Wie viele bewegliche Wirbelknochen bilden das Gerüst deines Rückens?", opts: ["12 Wirbel", "24 Wirbel", "7 Wirbel", "5 Wirbel"], correct: 1, r: "Richtig! Es sind 24 bewegliche Wirbel." },
@@ -235,51 +222,70 @@
         let currentSession = [];
         let currIdx = 0;
         let isAnswered = false;
+        let lastRank = "";
+
+        const ranks = [
+            { threshold: 60, name: "Professor der Anatomie 🎓" },
+            { threshold: 45, name: "Meister der Medizin 🩺" },
+            { threshold: 30, name: "Körper-Profi 🏃‍♂️" },
+            { threshold: 20, name: "Organ-Experte 🫀" },
+            { threshold: 10, name: "Skelett-Spürnase 🦴" },
+            { threshold: 0, name: "Anatomie-Lehrling 🐣" }
+        ];
 
         function init() {
-            const saved = localStorage.getItem('anatomie_v60_progress');
+            const saved = localStorage.getItem('anatomie_profi_final_v1');
             if (saved) userProgress = JSON.parse(saved);
             else cardsData.forEach(c => userProgress[c.id] = 1);
-            updateStats();
+            const learned = Object.values(userProgress).filter(v => v === 4).length;
+            lastRank = ranks.find(r => learned >= r.threshold).name;
+            updateStats(true);
         }
 
-        function updateStats() {
+        function updateStats(silent = false) {
             const counts = {1:0, 2:0, 3:0, 4:0};
-            Object.keys(userProgress).forEach(id => {
-                const box = userProgress[id];
-                if(counts[box] !== undefined) counts[box]++;
-            });
+            Object.values(userProgress).forEach(v => counts[v]++);
             for(let i=1; i<=4; i++) {
-                document.getElementById(`box${i}-count`).innerText = counts[i];
+                const el = document.getElementById(`box${i}-count`);
+                if(el) el.innerText = counts[i];
+            }
+            const learned = counts[4];
+            const currentRank = ranks.find(r => learned >= r.threshold).name;
+            document.getElementById('rank-display').innerText = currentRank;
+            document.getElementById('progress-bar').style.width = (learned / 60 * 100) + "%";
+            if (!silent && currentRank !== lastRank) { lastRank = currentRank; showLevelUp(currentRank); }
+        }
+
+        function showLevelUp(name) {
+            document.getElementById('new-rank-name').innerText = name;
+            document.getElementById('level-up-overlay').classList.remove('hidden');
+            spawnConfetti();
+        }
+
+        function spawnConfetti() {
+            const area = document.getElementById('confetti-area');
+            for(let i=0; i<40; i++) {
+                setTimeout(() => {
+                    const c = document.createElement('div');
+                    c.className = 'confetti';
+                    c.style.left = Math.random() * 100 + 'vw';
+                    c.style.backgroundColor = ['#fbbf24', '#ffffff', '#34d399', '#f87171'][Math.floor(Math.random()*4)];
+                    area.appendChild(c);
+                    setTimeout(() => c.remove(), 3500);
+                }, i * 50);
             }
         }
+
+        function closeLevelUp() { document.getElementById('level-up-overlay').classList.add('hidden'); }
 
         function startSession() {
             const getBox = (n) => cardsData.filter(c => userProgress[c.id] === n).sort(() => Math.random() - 0.5);
-            
-            // Strikte Mischung: 5 aus 1, 3 aus 2, 2 aus 3
-            let box1 = getBox(1);
-            let box2 = getBox(2);
-            let box3 = getBox(3);
-            let box4 = getBox(4); // Falls Box 3 leer ist
-
-            currentSession = [
-                ...box1.slice(0, 5),
-                ...box2.slice(0, 3),
-                ...box3.slice(0, 2)
-            ];
-
-            // Auffüllen falls Boxen leer sind
+            let b1 = getBox(1), b2 = getBox(2), b3 = getBox(3);
+            currentSession = [...b1.slice(0, 5), ...b2.slice(0, 3), ...b3.slice(0, 2)];
             if (currentSession.length < 10) {
-                let all = [...box1, ...box2, ...box3, ...box4].filter(c => !currentSession.includes(c));
-                currentSession = [...currentSession, ...all.slice(0, 10 - currentSession.length)];
+                const rest = cardsData.filter(c => !currentSession.includes(c)).sort(() => Math.random() - 0.5);
+                currentSession = [...currentSession, ...rest.slice(0, 10 - currentSession.length)];
             }
-
-            // Zufällige Reihenfolge in der Session
-            currentSession.sort(() => Math.random() - 0.5);
-
-            if(currentSession.length === 0) return alert("Alle Karten gelernt!");
-
             currIdx = 0;
             document.getElementById('start-screen').classList.add('hidden');
             showCard();
@@ -288,14 +294,11 @@
         function showCard() {
             isAnswered = false;
             const card = currentSession[currIdx];
-            document.getElementById('progress-bar').style.width = ((currIdx) / currentSession.length * 100) + "%";
             document.getElementById('feedback-box').classList.add('hidden');
-            
             if (card.type === 'self') {
                 document.getElementById('interactive-ui').classList.add('hidden');
                 document.getElementById('flashcard-ui').classList.remove('hidden');
                 document.getElementById('card-inner-element').classList.remove('card-flipped');
-                document.getElementById('self-cat').innerText = card.cat;
                 document.getElementById('self-q').innerText = card.q;
                 document.getElementById('self-a').innerText = card.a;
                 document.getElementById('self-r').innerText = card.r;
@@ -303,92 +306,59 @@
                 document.getElementById('flashcard-ui').classList.add('hidden');
                 document.getElementById('interactive-ui').classList.remove('hidden');
                 document.getElementById('task-cat').innerText = card.cat;
-                
-                const label = document.getElementById('task-type-label');
-                label.innerText = (card.type === 'transfer' ? 'Denk-Aufgabe' : 'Wissen');
-                label.className = `text-sm px-4 py-1 rounded-full font-bold uppercase ${card.type === 'transfer' ? 'bg-indigo-100 text-indigo-600' : 'bg-blue-100 text-blue-600'}`;
-                
-                const contextEl = document.getElementById('task-context');
-                if(card.context) {
-                    contextEl.innerText = "💡 " + card.context;
-                    contextEl.classList.remove('hidden');
-                } else {
-                    contextEl.classList.add('hidden');
-                }
-
+                document.getElementById('task-type-label').innerText = card.type === 'transfer' ? 'SZENARIO' : 'WISSEN';
+                const ctx = document.getElementById('task-context');
+                if(card.context) { ctx.innerText = "💡 " + card.context; ctx.classList.remove('hidden'); }
+                else ctx.classList.add('hidden');
                 document.getElementById('task-q').innerText = card.q;
                 document.getElementById('task-r').innerText = card.r;
-                
                 const box = document.getElementById('options-box');
                 box.innerHTML = '';
                 card.opts.forEach((opt, idx) => {
                     const btn = document.createElement('button');
-                    btn.className = "w-full text-left p-5 rounded-3xl border-4 border-slate-100 hover:border-blue-300 hover:bg-blue-50 transition-all text-lg md:text-xl font-bold bg-white text-slate-700 shadow-sm";
+                    btn.className = "w-full text-left p-5 rounded-[1.5rem] border-2 border-slate-100 font-bold transition-all text-lg bg-white shadow-sm active:scale-[0.98]";
                     btn.innerText = opt;
-                    btn.onclick = () => checkInteractive(idx, btn);
+                    btn.onclick = () => checkAnswer(idx, btn);
                     box.appendChild(btn);
                 });
             }
         }
 
-        function checkInteractive(selectedIndex, btnElement) {
-            if (isAnswered) return;
+        function checkAnswer(idx, btn) {
+            if(isAnswered) return;
             isAnswered = true;
             const card = currentSession[currIdx];
-            const isCorrect = selectedIndex === card.correct;
-            
-            const buttons = document.getElementById('options-box').querySelectorAll('button');
-            buttons.forEach((btn, idx) => {
-                btn.onclick = null;
-                if (idx === card.correct) {
-                    btn.classList.replace('border-slate-100', 'border-emerald-500');
-                    btn.classList.add('bg-emerald-50', 'text-emerald-700');
-                } else if (idx === selectedIndex) {
-                    btn.classList.replace('border-slate-100', 'border-rose-500');
-                    btn.classList.add('bg-rose-50', 'text-rose-700');
-                }
+            const correct = idx === card.correct;
+            document.querySelectorAll('#options-box button').forEach((b, i) => {
+                if(i === card.correct) b.className = "w-full text-left p-5 rounded-[1.5rem] border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-bold text-lg shadow-inner";
+                else if(i === idx) b.className = "w-full text-left p-5 rounded-[1.5rem] border-2 border-rose-500 bg-rose-50 text-rose-800 font-bold text-lg shadow-inner";
+                else b.style.opacity = "0.3";
             });
-
-            const fTitle = document.getElementById('feedback-title');
-            const fIcon = document.getElementById('feedback-icon');
-            fTitle.innerText = isCorrect ? "Richtig gelöst!" : "Schau mal hier:";
-            fTitle.className = "font-black text-2xl " + (isCorrect ? "text-emerald-600" : "text-rose-600");
-            fIcon.className = "w-14 h-14 rounded-2xl flex items-center justify-center text-white text-3xl font-bold " + (isCorrect ? "bg-emerald-500" : "bg-rose-500");
-            fIcon.innerText = isCorrect ? "✓" : "✕";
-
-            updateBox(card.id, isCorrect);
+            document.getElementById('feedback-title').innerText = correct ? "Richtig!" : "Knapp daneben...";
+            document.getElementById('feedback-icon').className = "w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-2xl " + (correct ? "bg-emerald-500" : "bg-rose-500");
+            document.getElementById('feedback-icon').innerText = correct ? "✓" : "✕";
+            updateBox(card.id, correct);
             document.getElementById('feedback-box').classList.remove('hidden');
         }
 
         function flipCard() { document.getElementById('card-inner-element').classList.add('card-flipped'); }
-
-        function handleResult(correct) {
-            updateBox(currentSession[currIdx].id, correct);
-            handleNext();
-        }
-
+        function handleResult(correct) { updateBox(currentSession[currIdx].id, correct); handleNext(); }
         function updateBox(id, correct) {
-            if (correct) { if (userProgress[id] < 4) userProgress[id]++; }
+            if(correct) { if(userProgress[id] < 4) userProgress[id]++; }
             else userProgress[id] = 1;
-            localStorage.setItem('anatomie_v60_progress', JSON.stringify(userProgress));
+            localStorage.setItem('anatomie_profi_final_v1', JSON.stringify(userProgress));
             updateStats();
         }
 
         function handleNext() {
             currIdx++;
             if (currIdx < currentSession.length) showCard();
-            else finish();
+            else {
+                document.getElementById('interactive-ui').classList.add('hidden');
+                document.getElementById('flashcard-ui').classList.add('hidden');
+                document.getElementById('start-screen').classList.remove('hidden');
+            }
         }
-
-        function finish() {
-            document.getElementById('interactive-ui').classList.add('hidden');
-            document.getElementById('flashcard-ui').classList.add('hidden');
-            document.getElementById('start-screen').classList.remove('hidden');
-            document.getElementById('start-screen').querySelector('h2').innerText = "Runde beendet!";
-            document.getElementById('start-screen').querySelector('p').innerHTML = "Du hast alle 10 Karten für heute geschafft.<br>Deine Boxen haben sich aktualisiert!";
-            document.getElementById('progress-bar').style.width = "100%";
-        }
-
         window.onload = init;
     </script>
 </body>
