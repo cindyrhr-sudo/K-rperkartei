@@ -112,8 +112,8 @@
                 <div class="dynamic-text-xs opacity-60 font-bold uppercase truncate">Box 3</div>
                 <div id="box3-count" class="dynamic-text-xl font-black whitespace-nowrap">0</div>
             </div>
-            <div id="box-container-4" class="flex flex-col justify-center text-center text-emerald-400 bg-emerald-500/20 p-2 rounded-lg border border-emerald-500/40 min-w-0 aspect-square sm:aspect-auto">
-                <div class="dynamic-text-xs opacity-80 font-bold uppercase italic text-emerald-500 truncate">Gelernt</div>
+           <div id="box-container-4" class="flex flex-col justify-center text-center p-2 rounded-lg border min-w-0 aspect-square sm:aspect-auto" style="background-color: rgba(122, 156, 123, 0.2); border-color: #7a9c7b; color: #7a9c7b;">
+    <div class="dynamic-text-xs opacity-90 font-bold uppercase italic truncate">Gelernt</div>/div>
                 <div id="box4-count" class="dynamic-text-xl font-black whitespace-nowrap">0</div>
             </div>
         </div>
@@ -173,8 +173,8 @@
     <p id="self-r" class="text-slate-600 italic mb-10 text-lg"></p>
     
     <div class="grid grid-cols-2 gap-4 w-full">
-        <button onclick="handleResult(false)" style="background-color: #d68a8a;" class="text-white py-5 rounded-2xl font-bold shadow-md active:scale-95 transition-all">FALSCH</button>
-        <button onclick="handleResult(true)" style="background-color: #86a687;" class="text-white py-5 rounded-2xl font-bold shadow-md active:scale-95 transition-all">RICHTIG</button>
+       <button onclick="handleResult(false)" style="background-color: #bc7a7a;" class="text-white py-5 rounded-2xl font-bold shadow-md active:scale-95 transition-all">FALSCH</button>
+    <button onclick="handleResult(true)" style="background-color: #7a9c7b;" class="text-white py-5 rounded-2xl font-bold shadow-md active:scale-95 transition-all">RICHTIG</button>
     </div>
 </div>
 
@@ -326,22 +326,16 @@
         // Grunddesign beibehalten, aber Farben überschreiben
         b.className = "w-full text-left p-5 rounded-2xl border-2 font-bold text-lg transition-all";
         
-        if(i === card.correct) {
-            // Richtig: Sanftes Salbeigrün
-            b.style.backgroundColor = "#eaf2ea"; 
-            b.style.borderColor = "#86a687"; 
-            b.style.color = "#2d4a2d";
-            b.classList.add("shadow-inner");
-        } else if(i === idx) {
-            // Falsch: Sanftes Altrosa
-            b.style.backgroundColor = "#f9f1f1"; 
-            b.style.borderColor = "#d68a8a";
-            b.style.color = "#5c3a3a";
-            b.classList.add("shadow-inner");
-        } else {
-            b.style.opacity = "0.3";
-            b.style.borderColor = "transparent";
-        }
+if(i === card.correct) {
+    b.style.backgroundColor = "rgba(122, 156, 123, 0.25)"; 
+    b.style.borderColor = "#7a9c7b"; 
+    b.style.color = "#1e3d2f"; // Dunkles Tafelgrün für perfekte Lesbarkeit
+} else if(i === idx) {
+    b.style.backgroundColor = "rgba(188, 122, 122, 0.25)"; 
+    b.style.borderColor = "#bc7a7a";
+    b.style.color = "#4a2d2d"; // Dunkleres Rotbraun
+}
+        
     });
     
     // Feedback-Box Titel und Icon
@@ -350,7 +344,7 @@
     const iconEl = document.getElementById('feedback-icon');
     // Icon Design (Größe/Form) beibehalten, nur Farbe ändern
     iconEl.className = "w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-2xl";
-    iconEl.style.backgroundColor = correct ? "#86a687" : "#d68a8a";
+    iconEl.style.backgroundColor = correct ? "#7a9c7b" : "#bc7a7a";
     iconEl.innerText = correct ? "✓" : "✕";
     
     updateBox(card.id, correct);
