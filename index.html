@@ -2,13 +2,26 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Anatomie-Profi Lern-App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --tafel-gruen: #1e3d2f; }
-        body { background-color: var(--tafel-gruen); height: 100vh; overflow: hidden; touch-action: manipulation; }
+        body { 
+            background-color: var(--tafel-gruen); 
+            height: 100vh; 
+            margin: 0;
+            overflow: hidden; 
+            touch-action: manipulation; 
+        }
         
+        /* Dynamische Schriftgrößen, die mitschrumpfen */
+        .dynamic-text-xs {
+            font-size: clamp(8px, 1.5vw, 10px);
+        }
+        .dynamic-text-xl {
+            font-size: clamp(14px, 4vw, 24px);
+        }
+
         .perspective { perspective: 1500px; }
         .card-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; height: 100%; }
         .card-flipped { transform: rotateY(180deg); }
@@ -21,14 +34,13 @@
         }
         .confetti { position: absolute; width: 10px; height: 10px; top: -20px; z-index: 210; animation: confetti-fall 3.5s linear forwards; }
         
-        /* Custom scrollbar for cleaner look on tablets */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="text-slate-800 font-sans">
 
-    <!-- LEVEL UP OVERLAY (GELB HINTERLEGT) -->
+    <!-- LEVEL UP OVERLAY -->
     <div id="level-up-overlay" class="hidden fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 text-center backdrop-blur-md">
         <div id="confetti-area" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
         <div class="bg-yellow-400 rounded-[3rem] p-10 shadow-2xl max-w-sm w-full relative z-[220] border-8 border-white">
@@ -42,42 +54,38 @@
     <div class="h-full flex flex-col p-4 md:p-8 max-w-3xl mx-auto overflow-hidden">
         
         <!-- LEVEL / RANG LEISTE -->
-        <div id="rank-display" class="bg-black/40 text-yellow-400 text-center font-black py-3 rounded-t-2xl border-t border-x border-white/10 text-xs tracking-[0.2em] uppercase italic shrink-0">
+        <div id="rank-display" class="bg-black/40 text-yellow-400 text-center font-black py-3 rounded-t-2xl border-t border-x border-white/10 text-[10px] sm:text-xs tracking-[0.2em] uppercase italic shrink-0">
             LÄDT... ⏳
         </div>
 
-        <!-- Boxen-Header -->
-     <!-- Boxen-Header -->
-<!-- Der Container hat 'gap-2', damit zwischen den farbigen Boxen ein kleiner Abstand ist -->
-<div class="grid grid-cols-4 gap-2 bg-white/5 p-4 rounded-b-2xl border border-white/10 mb-4 shadow-xl shrink-0">
-    
-    <!-- Box 1: Blau -->
-    <!-- Wir fügen 'bg-blue-500/20' für den Hintergrund und 'rounded-lg' für die Form hinzu -->
-    <div class="text-center text-white bg-blue-500/20 p-2 rounded-lg border border-blue-500/30">
-        <div class="text-[10px] opacity-60 font-bold uppercase mb-1">Box 1</div>
-        <div id="box1-count" class="text-xl font-black">0</div>
-    </div>
+        <!-- Boxen-Header (Voll dynamisch) -->
+        <div class="grid grid-cols-4 gap-2 bg-white/5 p-2 sm:p-4 rounded-b-2xl border border-white/10 mb-4 shadow-xl shrink-0">
+            
+            <!-- Box 1 -->
+            <div class="flex flex-col justify-center text-center text-white bg-blue-500/20 p-2 rounded-lg border border-blue-500/30 min-w-0 aspect-square sm:aspect-auto">
+                <div class="dynamic-text-xs opacity-60 font-bold uppercase truncate">Box 1</div>
+                <div id="box1-count" class="dynamic-text-xl font-black whitespace-nowrap">0</div>
+            </div>
 
-    <!-- Box 2: Violett -->
-    <div class="text-center text-white bg-purple-500/20 p-2 rounded-lg border border-purple-500/30">
-        <div class="text-[10px] opacity-60 font-bold uppercase mb-1">Box 2</div>
-        <div id="box2-count" class="text-xl font-black">0</div>
-    </div>
+            <!-- Box 2 -->
+            <div class="flex flex-col justify-center text-center text-white bg-purple-500/20 p-2 rounded-lg border border-purple-500/30 min-w-0 aspect-square sm:aspect-auto">
+                <div class="dynamic-text-xs opacity-60 font-bold uppercase truncate">Box 2</div>
+                <div id="box2-count" class="dynamic-text-xl font-black whitespace-nowrap">0</div>
+            </div>
 
-    <!-- Box 3: Orange -->
-    <div class="text-center text-white bg-amber-500/20 p-2 rounded-lg border border-amber-500/30">
-        <div class="text-[10px] opacity-60 font-bold uppercase mb-1">Box 3</div>
-        <div id="box3-count" class="text-xl font-black">0</div>
-    </div>
+            <!-- Box 3 -->
+            <div class="flex flex-col justify-center text-center text-white bg-amber-500/20 p-2 rounded-lg border border-amber-500/30 min-w-0 aspect-square sm:aspect-auto">
+                <div class="dynamic-text-xs opacity-60 font-bold uppercase truncate">Box 3</div>
+                <div id="box3-count" class="dynamic-text-xl font-black whitespace-nowrap">0</div>
+            </div>
 
-    <!-- Box 4 (Gelernt): Smaragdgrün -->
-    <!-- Hier verstärken wir das Grün passend zum Text -->
-    <div class="text-center text-emerald-400 bg-emerald-500/20 p-2 rounded-lg border border-emerald-500/40">
-        <div class="text-[10px] opacity-80 font-bold uppercase mb-1 italic text-emerald-500">Gelernt</div>
-        <div id="box4-count" class="text-xl font-black">0</div>
-    </div>
+            <!-- Box 4 (Gelernt) -->
+            <div class="flex flex-col justify-center text-center text-emerald-400 bg-emerald-500/20 p-2 rounded-lg border border-emerald-500/40 min-w-0 aspect-square sm:aspect-auto">
+                <div class="dynamic-text-xs opacity-80 font-bold uppercase italic text-emerald-500 truncate">Gelernt</div>
+                <div id="box4-count" class="dynamic-text-xl font-black whitespace-nowrap">0</div>
+            </div>
 
-</div>
+        </div>
 
         <!-- Progress Bar -->
         <div class="w-full h-2 bg-black/40 rounded-full mb-4 overflow-hidden border border-white/5 shrink-0">
@@ -86,73 +94,22 @@
 
         <!-- Content Area -->
         <div class="flex-1 relative min-h-0">
-            <!-- Start-Bildschirm -->
-            <div id="start-screen" class="bg-white rounded-[2.5rem] shadow-2xl p-8 flex flex-col items-center justify-center text-center h-full absolute inset-0 border-8 border-white/10">
-                <div class="text-8xl mb-6">🦴</div>
-                <h2 class="text-3xl font-black mb-4">Challenge bereit!</h2>
-                <p class="text-slate-500 mb-10 text-lg leading-relaxed">Wir trainieren heute 10 Karten aus deinen Boxen.</p>
-                <button onclick="startSession()" class="w-full max-w-xs bg-blue-600 text-white text-2xl font-black py-6 rounded-3xl shadow-lg active:scale-95 transition-all">Sitzung starten</button>
+            <div id="start-screen" class="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center h-full absolute inset-0 border-8 border-white/10">
+                <div class="text-6xl sm:text-8xl mb-4 sm:mb-6">🦴</div>
+                <h2 class="text-xl sm:text-3xl font-black mb-2 sm:mb-4">Challenge bereit!</h2>
+                <p class="text-slate-500 mb-6 sm:mb-10 text-sm sm:text-lg leading-relaxed px-4">Wir trainieren heute 10 Karten aus deinen Boxen.</p>
+                <button onclick="startSession()" class="w-full max-w-xs bg-blue-600 text-white text-lg sm:text-2xl font-black py-4 sm:py-6 rounded-3xl shadow-lg active:scale-95 transition-all">Sitzung starten</button>
             </div>
 
-            <!-- Quiz UI -->
-            <div id="interactive-ui" class="hidden bg-white rounded-[2.5rem] shadow-2xl p-6 flex flex-col h-full absolute inset-0 border-8 border-white/10">
-                <div class="flex justify-between items-center mb-4 shrink-0">
-                    <span id="task-cat" class="text-xs font-black text-blue-600 bg-blue-50 px-4 py-1 rounded-full uppercase tracking-widest italic">Kategorie</span>
-                    <span id="task-type-label" class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Typ</span>
-                </div>
-                
-                <div class="flex-1 overflow-y-auto no-scrollbar pr-1">
-                    <!-- LILA SZENARIO-KASTEN -->
-                    <div id="task-context" class="mb-5 p-5 bg-indigo-100 rounded-[1.5rem] text-lg text-indigo-900 hidden border-l-[12px] border-indigo-400 shadow-inner">
-                        💡 Szenario...
-                    </div>
-                    <p id="task-q" class="text-2xl font-black leading-tight mb-6 text-slate-800">Frage?</p>
-                    <div id="options-box" class="grid grid-cols-1 gap-3 pb-4"></div>
-                </div>
-
-                <!-- Feedback Area -->
-                <div id="feedback-box" class="hidden shrink-0 pt-4 mt-2 border-t-2 border-slate-50">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div id="feedback-icon" class="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-2xl">!</div>
-                        <div class="flex-1">
-                            <p id="feedback-title" class="font-black text-xl"></p>
-                            <p id="task-r" class="text-sm text-slate-500 leading-tight"></p>
-                        </div>
-                    </div>
-                    <button onclick="handleNext()" class="w-full bg-slate-900 text-white text-xl font-bold py-5 rounded-2xl shadow-lg transition-all active:scale-95">WEITER</button>
-                </div>
-            </div>
-
-            <!-- Flashcard UI -->
-            <div id="flashcard-ui" class="hidden h-full absolute inset-0 perspective">
-                <div id="card-inner-element" class="card-inner relative w-full h-full">
-                    <!-- Vorderseite -->
-                    <div class="backface-hidden absolute inset-0 bg-white rounded-[2.5rem] p-8 flex flex-col shadow-2xl cursor-pointer border-8 border-white/10" onclick="flipCard()">
-                        <div class="text-[10px] font-black text-orange-600 bg-orange-50 px-4 py-1 rounded-full uppercase w-max mb-6 tracking-widest italic">Wissens-Check</div>
-                        <div class="flex-grow flex items-center justify-center text-center overflow-y-auto no-scrollbar">
-                            <p id="self-q" class="text-3xl font-black leading-tight">Frage?</p>
-                        </div>
-                        <div class="text-center text-blue-500 font-black text-xs uppercase tracking-widest animate-pulse italic mt-4">Klick für Antwort</div>
-                    </div>
-                    <!-- Rückseite -->
-                    <div class="backface-hidden rotate-y-180 absolute inset-0 bg-indigo-600 text-white rounded-[2.5rem] p-8 flex flex-col shadow-2xl border-8 border-indigo-500/50">
-                        <div class="flex-grow flex flex-col items-center justify-center text-center overflow-y-auto no-scrollbar py-2">
-                            <p id="self-a" class="text-4xl font-black mb-6 uppercase tracking-tighter border-b-2 border-white/20 pb-4 w-full">Antwort</p>
-                            <p id="self-r" class="text-lg opacity-90 leading-snug italic"></p>
-                        </div>
-                        <div class="pt-6 border-t border-white/10 shrink-0">
-                            <div class="grid grid-cols-2 gap-4">
-                                <button onclick="handleResult(false)" class="bg-rose-500 hover:bg-rose-600 text-white py-5 rounded-2xl font-black shadow-lg">NEIN</button>
-                                <button onclick="handleResult(true)" class="bg-emerald-500 hover:bg-emerald-600 text-white py-5 rounded-2xl font-black shadow-lg">JA!</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="interactive-ui" class="hidden bg-white rounded-[2.5rem] shadow-2xl p-6 flex flex-col h-full absolute inset-0 border-8 border-white/10"></div>
         </div>
     </div>
 
     <script>
+        function startSession() {
+            console.log("Sitzung gestartet");
+        }
+    </script>
         const cardsData = [
             // --- WIRBELSÄULE (9 Karten) ---
             { id: 1, type: "mc", cat: "Wirbelsäule", q: "Wie viele bewegliche Wirbelknochen bilden das Gerüst deines Rückens?", opts: ["12 Wirbel", "24 Wirbel", "7 Wirbel", "5 Wirbel"], correct: 1, r: "Richtig! Es sind 24 bewegliche Wirbel." },
