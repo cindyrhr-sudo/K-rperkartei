@@ -18,26 +18,25 @@
         .dynamic-text-xs { font-size: clamp(8px, 1.5vw, 10px); }
         .dynamic-text-xl { font-size: clamp(14px, 4vw, 24px); }
 
-        /* NEU: Universelles Status-Box Design */
-        .status-card {
-            background-color: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-left-width: 12px;
+        /* NEU: Die Boxen-Logik exakt nach deiner Bild-Vorlage */
+        .status-bubble {
+            border-radius: 0.75rem; /* Abgerundete Ecken */
+            border-left: 6px solid; /* Der dicke linke Rand aus dem Bild */
+            padding: 1rem;
             transition: all 0.3s ease;
         }
 
-        /* Farbspezifische Glow-Effekte & Ränder */
-        .card-yellow { border-left-color: #facc15; box-shadow: 0 0 15px rgba(250, 204, 21, 0.15); color: #facc15; }
-        .card-blue   { border-left-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); color: #60a5fa; }
-        .card-purple { border-left-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.15); color: #c084fc; }
-        .card-amber  { border-left-color: #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.15); color: #fbbf24; }
-        .card-green  { border-left-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); color: #34d399; }
+        /* Farbschemata für die Bubbles */
+        .bubble-yellow { background-color: rgba(250, 204, 21, 0.1); border-color: #facc15; color: #facc15; }
+        .bubble-blue   { background-color: rgba(59, 130, 246, 0.1); border-color: #3b82f6; color: #60a5fa; }
+        .bubble-purple { background-color: rgba(168, 85, 247, 0.1); border-color: #a855f7; color: #c084fc; }
+        .bubble-amber  { background-color: rgba(245, 158, 11, 0.1); border-color: #f59e0b; color: #fbbf24; }
+        .bubble-green  { background-color: rgba(16, 185, 129, 0.1); border-color: #10b981; color: #34d399; }
 
-        /* Animationen */
+        /* Animationen - Unverändert */
         @keyframes pulse-box {
             0% { transform: scale(1); }
-            40% { transform: scale(1.15); }
+            40% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
         .pulse-fast { animation: pulse-box 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -54,7 +53,7 @@
         }
         .confetti { position: absolute; width: 10px; height: 10px; top: -20px; z-index: 210; animation: confetti-fall 3.5s linear forwards; }
 
-        /* Der Karteikarten-Look */
+        /* Der Karteikarten-Look - Unverändert */
         .index-card {
             background: #fdf5e6;
             background-image: 
