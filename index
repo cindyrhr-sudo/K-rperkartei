@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Anatomie-Profi Lern-App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --tafel-gruen: #1e3d2f;
+        }
+        body {
+            background-color: var(--tafel-gruen);
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        .perspective { perspective: 1500px; }
+        .card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            height: 100%;
+        }
+        .card-flipped { transform: rotateY(180deg); }
+        .backface-hidden { 
+            backface-visibility: hidden; 
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 0;
+            padding-bottom: 1rem;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="text-slate-800 font-sans">
+
+    <div class="app-container">
+        <!-- Prominenter Boxen-Header -->
+        <div class="w-full grid grid-cols-4 gap-2 mb-4">
+            <div class="bg-white/10 rounded-2xl p-3 border border-white/20 text-center shadow-lg">
+                <div class="text-[10px] uppercase font-black text-white/60 mb-1 tracking-tighter">Box 1</div>
+                <div id="box1-count" class="text-2xl font-black text-white">0</div>
+            </div>
+            <div class="bg-white/10 rounded-2xl p-3 border border-white/20 text-center">
+                <div class="text-[10px] uppercase font-black text-white/60 mb-1 tracking-tighter">Box 2</div>
+                <div id="box2-count" class="text-2xl font-black text-white">0</div>
+            </div>
+            <div class="bg-white/10 rounded-2xl p-3 border border-white/20 text-center">
+                <div class="text-[10px] uppercase font-black text-white/60 mb-1 tracking-tighter">Box 3</div>
+                <div id="box3-count" class="text-2xl font-black text-white">0</div>
+            </div>
+            <div class="bg-green-500/30 rounded-2xl p-3 border border-green-500/40 text-center shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+                <div class="text-[10px] uppercase font-black text-green-200 mb-1 tracking-tighter">Gelernt</div>
+                <div id="box4-count" class="text-2xl font-black text-green-100">0</div>
+            </div>
+        </div>
+
+        <div class="w-full h-3 bg-black/30 rounded-full mb-4 border border-white/5">
+            <div id="progress-bar" class="h-full bg-yellow-400 rounded-full transition-all duration-500 shadow-[0_0_15px_rgba(250,204,21,0.6)]" style="width: 0%"></div>
+        </div>
+
+        <div class="main-content">
+            <div id="content-area" class="relative h-full w-full max-h-[850px]">
+                
+                <!-- START SCREEN -->
+                <div id="start-screen" class="bg-white rounded-[3rem] shadow-2xl p-8 flex flex-col items-center justify-center text-center border-8 border-white/10 h-full absolute inset-0">
+                    <div class="text-8xl mb-6">🦴</div>
+                    <h2 class="text-4xl font-black mb-4 text-slate-800">Die 60-Karten Challenge</h2>
+                    <p class="text-xl text-slate-600 mb-8 leading-relaxed max-w-lg">
+                        Wir trainieren heute 10 Karten: <br>
+                        <span class="font-bold text-blue-600">5 Neue</span>, <span class="font-bold text-orange-600">3 Wiederholungen</span> & <span class="font-bold text-green-600">2 Profi-Karten</span>.
+                    </p>
+                    <button onclick="startSession()" class="w-full max-w-sm bg-blue-600 text-white text-2xl font-bold py-6 rounded-3xl shadow-xl hover:bg-blue-700 active:scale-95 transition-all">Sitzung starten</button>
+                </div>
+
+                <!-- INTERACTIVE UI (MC & Transfer) -->
+                <div id="interactive-ui" class="hidden bg-white rounded-[3rem] shadow-2xl p-6 md:p-10 flex flex-col border-8 border-white/10 h-full absolute inset-0 overflow-hidden">
+                    <div class="flex justify-between items-center mb-4 shrink-0">
+                        <span id="task-cat" class="text-sm uppercase font-black tracking-widest text-blue-500 bg-blue-50 px-4 py-1 rounded-full italic">Kategorie</span>
+                        <span id="task-type-label" class="text-sm px-4 py-1 rounded-full font-bold uppercase">Format</span>
+                    </div>
+                    
+                    <div class="flex-1 flex flex-col justify-center min-h-0 overflow-y-auto no-scrollbar">
+                        <div id="task-context" class="mb-4 p-5 bg-indigo-50 rounded-3xl text-lg md:text-xl text-indigo-900 hidden border-l-8 border-indigo-400 leading-snug">
+                            Szenario...
+                        </div>
+                        <p id="task-q" class="text-2xl md:text-3xl font-black leading-tight mb-6 text-slate-800">Frage?</p>
+                        
+                        <div id="options-box" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+                    
+                    <div id="feedback-box" class="hidden shrink-0 pt-6 mt-4 border-t-4 border-slate-50">
+                        <div class="flex items-start gap-4 mb-4">
+                            <div id="feedback-icon" class="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shrink-0">!</div>
+                            <div class="flex-1">
+                                <p id="feedback-title" class="font-black text-2xl mb-1"></p>
+                                <p id="task-r" class="text-lg text-slate-600 leading-tight"></p>
+                            </div>
+                        </div>
+                        <button id="btn-next-interactive" onclick="handleNext()" class="w-full bg-slate-800 text-white text-2xl font-bold py-5 rounded-2xl hover:bg-slate-900 transition-all">Nächste Karte</button>
+                    </div>
+                </div>
+
+                <!-- FLASHCARD UI (Self Assessment) -->
+                <div id="flashcard-ui" class="hidden h-full absolute inset-0 perspective">
+                    <div id="card-inner-element" class="card-inner relative w-full h-full">
+                        <div class="backface-hidden absolute inset-0 bg-white rounded-[3rem] p-10 flex flex-col border-8 border-white/10 shadow-2xl cursor-pointer" onclick="flipCard()">
+                            <div class="flex justify-between items-center mb-4">
+                                <span id="self-cat" class="text-sm uppercase font-black text-orange-500 bg-orange-50 px-4 py-1 rounded-full italic">Kategorie</span>
+                                <span class="text-sm bg-slate-100 text-slate-500 px-4 py-1 rounded-full font-bold uppercase">Wissens-Check</span>
+                            </div>
+                            <div class="flex-grow flex items-center justify-center text-center">
+                                <p id="self-q" class="text-3xl md:text-4xl font-black text-slate-800 leading-tight p-4">Frage?</p>
+                            </div>
+                            <div class="text-center p-4 bg-blue-50 rounded-2xl animate-bounce text-blue-600 font-black tracking-widest text-sm italic">TIPPE ZUR ANTWORT</div>
+                        </div>
+                        <div class="backface-hidden rotate-y-180 absolute inset-0 bg-indigo-600 text-white rounded-[3rem] p-8 flex flex-col shadow-2xl border-8 border-indigo-500">
+                            <div class="flex-grow flex flex-col items-center justify-center text-center overflow-y-auto no-scrollbar">
+                                <p id="self-a" class="text-3xl md:text-4xl font-black mb-6 border-b-2 border-indigo-400 pb-4 w-full">Antwort</p>
+                                <p id="self-r" class="text-lg md:text-xl opacity-95 leading-relaxed bg-black/20 p-6 rounded-[2rem] shadow-inner"></p>
+                            </div>
+                            <div class="shrink-0 pt-6">
+                                <p class="text-center text-xs font-black mb-4 uppercase tracking-widest opacity-70">Warst du sicher?</p>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <button onclick="handleResult(false)" class="bg-rose-500 hover:bg-rose-600 text-white text-2xl font-bold py-6 rounded-2xl shadow-lg transition-all">Nein ✕</button>
+                                    <button onclick="handleResult(true)" class="bg-emerald-500 hover:bg-emerald-600 text-white text-2xl font-bold py-6 rounded-2xl shadow-lg transition-all">Ja ✓</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 60 Karten - Vollständig passend zur Faktenliste
+        const cardsData = [
+            // --- WIRBELSÄULE (9 Karten) ---
+            { id: 1, type: "mc", cat: "Wirbelsäule", q: "Wie viele bewegliche Wirbelknochen bilden das Gerüst deines Rückens?", opts: ["12 Wirbel", "24 Wirbel", "7 Wirbel", "5 Wirbel"], correct: 1, r: "Richtig! Es sind 24 bewegliche Wirbel." },
+            { id: 2, type: "self", cat: "Wirbelsäule", q: "Welche wichtige Funktion erfüllt die Wirbelsäule für deinen gesamten Körper?", a: "Aufrechter Gang & Beweglichkeit", r: "Sie hält uns aufrecht und lässt uns den Rücken in verschiedene Richtungen biegen." },
+            { id: 3, type: "transfer", cat: "Wirbelsäule", context: "Stell dir vor, du trägst einen schweren Rucksack voller Steine.", q: "Welche Teile deiner Wirbelsäule werden dabei wie Schwämme zusammengepresst, um den Druck abzufedern?", opts: ["Die Wirbelknochen", "Die Bandscheiben", "Das Kreuzbein", "Das Steißbein"], correct: 1, r: "Die 23 Bandscheiben wirken wie Puffer-Schwämme bei Belastung." },
+            { id: 4, type: "mc", cat: "Wirbelsäule", q: "Wie viele Wirbel hat der oberste Abschnitt, die Halswirbelsäule?", opts: ["5 Wirbel", "7 Wirbel", "12 Wirbel", "24 Wirbel"], correct: 1, r: "Korrekt! Die Halswirbelsäule besteht aus 7 Wirbeln." },
+            { id: 5, type: "self", cat: "Wirbelsäule", q: "Wie heißen die zwei Abschnitte am untersten Ende der Wirbelsäule, bei denen die Wirbel fest verwachsen sind?", a: "Kreuzbein & Steißbein", r: "Diese bilden den festen Abschluss deines Rückgrats." },
+            { id: 6, type: "transfer", cat: "Wirbelsäule", context: "Du zählst die Wirbel in deinem Brustbereich, an denen auch die Rippen befestigt sind.", q: "Wie viele Brustwirbel müsstest du zählen?", opts: ["7 Stück", "5 Stück", "12 Stück", "24 Stück"], correct: 2, r: "Die Brustwirbelsäule besteht aus genau 12 Wirbeln." },
+            { id: 7, type: "mc", cat: "Wirbelsäule", q: "Welches Material zwischen den Wirbeln wirkt wie ein kleiner Schwamm?", opts: ["Knorpel", "Bandscheiben", "Muskelfasern", "Knochenmark"], correct: 1, r: "Die Bandscheiben (23 Stück) puffern Stöße ab." },
+            { id: 8, type: "self", cat: "Wirbelsäule", q: "Wie viele Wirbel besitzt der Bereich deiner Lendenwirbelsäule?", a: "5 Wirbel", r: "Das ist der Bereich im unteren Rücken, der oft viel Gewicht tragen muss." },
+            { id: 9, type: "transfer", cat: "Wirbelsäule", context: "Deine Wirbelsäule wird oft mit einer Kette verglichen.", q: "Warum ist dieser Vergleich besser als der Vergleich mit einem festen Stab?", opts: ["Weil sie aus Metall ist", "Weil sie rostet", "Weil sie durch viele Glieder beweglich ist", "Weil sie im Wasser sinkt"], correct: 2, r: "Wie eine Kette aus vielen Gliedern ermöglichen die einzelnen Wirbel die Biegsamkeit." },
+
+            // --- GELENKE (9 Karten) ---
+            { id: 10, type: "mc", cat: "Gelenke", q: "Welches Gelenk hat einen runden Kopf und eine passende Schale (Pfanne)?", opts: ["Sattelgelenk", "Scharniergelenk", "Kugelgelenk", "Drehgelenk"], correct: 2, r: "Das Kugelgelenk ist nach seiner Form benannt." },
+            { id: 11, type: "self", cat: "Gelenke", q: "Nenne ein Beispiel für ein Kugelgelenk in deinem Körper!", a: "Schulter oder Hüfte", r: "Diese Gelenke lassen sich kreisen und in fast alle Richtungen bewegen." },
+            { id: 12, type: "transfer", cat: "Gelenke", context: "Du willst deinen Arm am Ellenbogen so weit nach hinten biegen wie beim Kreisen der Schulter.", q: "Warum geht das nicht?", opts: ["Die Muskeln sind zu kurz", "Der Ellenbogen ist ein Scharniergelenk", "Der Knochen ist im Weg", "Man muss mehr trainieren"], correct: 1, r: "Ein Scharniergelenk lässt sich nur beugen und strecken, nicht kreisen." },
+            { id: 13, type: "mc", cat: "Gelenke", q: "Welches Gelenk ähnelt in seiner Form einer kleinen Rolle?", opts: ["Kugelgelenk", "Sattelgelenk", "Scharniergelenk", "Eigelenk"], correct: 2, r: "Das Scharniergelenk (z.B. Ellenbogen) sieht aus wie eine Rolle." },
+            { id: 14, type: "self", cat: "Gelenke", q: "Was ist das Besondere am Sattelgelenk des Daumens?", a: "Bewegung zum Körper hin & weg", r: "Es besteht aus zwei sattelförmigen Teilen, die ineinandergreifen." },
+            { id: 15, type: "transfer", cat: "Gelenke", context: "Du greifst nach einer kleinen Murmel mit Daumen und Zeigefinger.", q: "Welches Gelenk im Daumen macht diesen präzisen Griff erst möglich?", opts: ["Das Scharniergelenk", "Das Kugelgelenk", "Das Sattelgelenk", "Das Wirbelgelenk"], correct: 2, r: "Nur durch das Sattelgelenk kann der Daumen den anderen Fingern gegenübergestellt werden." },
+            { id: 16, type: "mc", cat: "Gelenke", q: "In wie viele Richtungen lässt sich ein Kugelgelenk bewegen?", opts: ["Nur in zwei", "In fast alle Richtungen", "Nur auf und zu", "Gar nicht"], correct: 1, r: "Dank der Kugelform ist es extrem flexibel." },
+            { id: 17, type: "self", cat: "Gelenke", q: "Was kann ein Scharniergelenk (wie am Ellenbogen) leisten?", a: "Beugen und Strecken", r: "Mehr Richtungen sind bei diesem Gelenktyp nicht vorgesehen." },
+            { id: 18, type: "transfer", cat: "Gelenke", context: "Ein Roboter-Arm soll sich genau so bewegen wie dein Daumen.", q: "Welches mechanische Teil müsste der Erfinder in das Daumengelenk bauen?", opts: ["Eine Kugel", "Einen Türriegel", "Zwei Sättel", "Einen festen Nagel"], correct: 2, r: "Zwei ineinander greifende Sättel bilden das Sattelgelenk nach." },
+
+            // --- KRAFT & TRAINING (9 Karten) ---
+            { id: 19, type: "mc", cat: "Kraft", q: "Welche Kraftart brauchst du für einen plötzlichen, hohen Kraftaufwand in ganz kurzer Zeit?", opts: ["Maximalkraft", "Kraftausdauer", "Schnellkraft", "Ruhekraft"], correct: 2, r: "Schnellkraft ist für explosive Bewegungen wie Sprünge da." },
+            { id: 20, type: "self", cat: "Kraft", q: "Nenne die drei verschiedenen Kraftarten!", a: "Maximalkraft, Kraftausdauer, Schnellkraft", r: "Diese drei Arten trainieren Sportler ganz unterschiedlich." },
+            { id: 21, type: "transfer", cat: "Kraft", context: "Ein Gewichtheber versucht sein schwerstes Gewicht einmalig hochzuheben.", q: "Welche Kraftart nutzt er in diesem Moment?", opts: ["Schnellkraft", "Kraftausdauer", "Maximalkraft", "Wanderkraft"], correct: 2, r: "Maximalkraft ist die höchste Kraft, die man einmalig aufbringen kann." },
+            { id: 22, type: "mc", cat: "Kraft", q: "Warum ist Krafttraining wichtig für deine Gelenke und Knochen?", opts: ["Man wird größer", "Es schützt den passiven Bewegungsapparat", "Man muss weniger essen", "Die Haut wird dicker"], correct: 1, r: "Starke Muskeln entlasten Gelenke und beugen Schäden vor." },
+            { id: 23, type: "self", cat: "Kraft", q: "Nach welchem Prinzip wächst die Kraft in deinem Körper?", a: "Zunehmende Belastung", r: "Nur wenn der Widerstand (das Gewicht) langsam gesteigert wird, wächst der Muskel." },
+            { id: 24, type: "transfer", cat: "Kraft", context: "Lukas macht 50 Liegestütze hintereinander, ohne schlapp zu machen.", q: "Welche Kraftart hat er besonders gut trainiert?", opts: ["Schnellkraft", "Maximalkraft", "Kraftausdauer", "Sprungkraft"], correct: 2, r: "Kraftausdauer lässt dich eine Übung über lange Zeit wiederholen." },
+            { id: 25, type: "mc", cat: "Kraft", q: "Was wird durch Krafttraining primär geschützt?", opts: ["Die Haare", "Gelenke und Knochen", "Die Fingernägel", "Die Nase"], correct: 1, r: "Gelenke und Knochen bilden den passiven Apparat, den Muskeln stützen." },
+            { id: 26, type: "self", cat: "Kraft", q: "Was verhindert regelmäßiges Training bei deiner Körperhaltung?", a: "Haltungsschäden", r: "Ein starker Rücken hält die Wirbelsäule gerade." },
+            { id: 27, type: "transfer", cat: "Kraft", context: "Jemand hebt jeden Tag den exakt gleichen, leichten Federball hoch.", q: "Wird seine Kraft dadurch nach dem Prinzip der Belastung stark wachsen?", opts: ["Ja, Übung macht den Meister", "Nein, es fehlt die zunehmende Belastung", "Nur wenn er dabei singt", "Nur im Sommer"], correct: 1, r: "Ohne Steigerung der Belastung gibt es keinen Kraftzuwachs." },
+
+            // --- GEHIRN (6 Karten) ---
+            { id: 28, type: "mc", cat: "Gehirn", q: "Aus welchen mikroskopisch kleinen Teilen besteht dein Gehirn?", opts: ["Muskelzellen", "Knochensplitter", "Nervenzellen", "Blutstropfen"], correct: 2, r: "Milliarden von Nervenzellen bilden das Denk-Netzwerk." },
+            { id: 29, type: "self", cat: "Gehirn", q: "An welche Nuss erinnert das Aussehen des menschlichen Gehirns?", a: "Walnuss", r: "Die gewundene Struktur sieht einer Walnuss sehr ähnlich." },
+            { id: 30, type: "transfer", cat: "Gehirn", context: "Du riechst eine leckere Pizza und deine Beine laufen zur Küche.", q: "Welches Organ hat die Signale der Nase empfangen und den Befehl zum Laufen gegeben?", opts: ["Das Herz", "Die Lunge", "Das Gehirn", "Der Magen"], correct: 2, r: "Das Gehirn ist die zentrale Steuerung für alle Prozesse." },
+            { id: 31, type: "mc", cat: "Gehirn", q: "Wo genau liegt dein Gehirn und was schützt es?", opts: ["Im Bauch / Rippen", "Im Kopf / Schädelknochen", "Im Rücken / Wirbel", "Im Arm / Muskel"], correct: 1, r: "Der Schädel ist der natürliche Schutzhelm fürs Gehirn." },
+            { id: 32, type: "self", cat: "Gehirn", q: "Nenne drei Dinge, die dein Gehirn dir ermöglicht!", a: "Denken, Sprechen, Fühlen (etc.)", r: "Hören, Riechen, Sehen und Bewegen gehören auch dazu." },
+            { id: 33, type: "transfer", cat: "Gehirn", context: "Ein Computer braucht einen Prozessor, um Aufgaben zu berechnen.", q: "Welches Organ ist der 'Prozessor' in deinem Körper?", opts: ["Die Leber", "Die Niere", "Das Gehirn", "Die Blase"], correct: 2, r: "Das Gehirn verarbeitet alle Informationen wie eine Zentrale." },
+
+            // --- HERZ (6 Karten) ---
+            { id: 34, type: "mc", cat: "Herz", q: "Wie groß ist das Herz eines Erwachsenen etwa?", opts: ["Wie ein Fußball", "Wie eine Faust", "Wie ein Daumen", "Wie ein Kopf"], correct: 1, r: "Man sagt, das Herz ist etwa so groß wie die eigene Faust." },
+            { id: 35, type: "self", cat: "Herz", q: "Wo genau in deiner Brust liegt dein Herz?", a: "Mittig, etwas nach links versetzt", r: "Dort pumpt es lebenswichtiges Blut durch den Körper." },
+            { id: 36, type: "transfer", cat: "Herz", context: "Du hältst zwei Finger an dein Handgelenk und spürst ein regelmäßiges Pochen.", q: "Was genau fühlst du dort und wer verursacht das?", opts: ["Dein Gehirn denkt nach", "Deine Muskeln zittern", "Den Puls vom Herzschlag", "Die Atmung der Lunge"], correct: 2, r: "Das Herz pumpt Blut in Wellen durch die Adern – das ist der Puls." },
+            { id: 37, type: "mc", cat: "Herz", q: "Was ist das Hauptziel des Herzschlags?", opts: ["Luft einsaugen", "Nahrung zerkleinern", "Versorgung mit Sauerstoff & Nährstoffen", "Den Körper kühlen"], correct: 2, r: "Das Blut liefert wichtige Stoffe an alle Organe." },
+            { id: 38, type: "self", cat: "Herz", q: "Wie viele Schläge macht das Herz pro Minute etwa im Ruhezustand?", a: "Ca. 70 Schläge", r: "Bei Anstrengung schlägt es deutlich schneller." },
+            { id: 39, type: "transfer", cat: "Herz", context: "Ein Motor pumpt Benzin durch ein Auto, damit es fährt.", q: "Was pumpt dein Herz durch die 'Leitungen' deines Körpers?", opts: ["Wasser", "Luft", "Blut", "Magensäure"], correct: 2, r: "Das Blut ist der Treibstoff-Transporter deines Körpers." },
+
+            // --- ATMUNG (6 Karten) ---
+            { id: 40, type: "mc", cat: "Atmung", q: "Was passiert in den winzigen Lungenbläschen?", opts: ["Nahrung wird verdaut", "Gasaustausch (Sauerstoff ins Blut)", "Blut wird gefiltert", "Wasser wird gespeichert"], correct: 1, r: "Hier wechselt der Sauerstoff in dein Blut." },
+            { id: 41, type: "self", cat: "Atmung", q: "Wie heißt das Abfallprodukt, das wir ausatmen?", a: "Kohlenstoff (CO2)", r: "Es wird vom Blut zurück zur Lunge gebracht und abgegeben." },
+            { id: 42, type: "transfer", cat: "Atmung", context: "Du hältst beim Tauchen die Luft an.", q: "Warum fängt dein Körper nach kurzer Zeit an zu kämpfen und will unbedingt wieder atmen?", opts: ["Ihm fehlt frisches CO2", "Ihm fehlt neuer Sauerstoff", "Der Magen ist leer", "Das Herz bleibt stehen"], correct: 1, r: "Ohne neuen Sauerstoff können deine Zellen keine Energie gewinnen." },
+            { id: 43, type: "mc", cat: "Atmung", q: "Welchen Weg nimmt die Luft nach Mund oder Nase?", opts: ["Über die Speiseröhre", "Über die Luftröhre in die Lunge", "Direkt in das Herz", "In den Magen"], correct: 1, r: "Die Luftröhre leitet die Luft sicher in beide Lungenflügel." },
+            { id: 44, type: "self", cat: "Atmung", q: "Wodurch gelangt die Luft in unseren Körper?", a: "Nase oder Mund", r: "Dort wird sie auch leicht angewärmt und gereinigt." },
+            { id: 45, type: "transfer", cat: "Atmung", context: "In einem stickigen Raum mit vielen Menschen wird die Luft 'verbraucht'.", q: "Welches Gas ist dann zu viel in der Luft und welches zu wenig?", opts: ["Zu viel Sauerstoff", "Zu viel Kohlenstoff (CO2) / zu wenig Sauerstoff", "Zu viel Stickstoff", "Zu viel Wasser"], correct: 1, r: "Wir atmen Sauerstoff weg und geben Kohlenstoff (CO2) ab." },
+
+            // --- VERDAUUNG (9 Karten) ---
+            { id: 46, type: "mc", cat: "Verdauung", q: "Wo beginnt die Verdauung und was passiert dort?", opts: ["Im Magen (Säure)", "Im Mund (Zerkleinern)", "Im Darm (Ausscheiden)", "In der Leber (Filter)"], correct: 1, r: "Die Zähne machen die Arbeit am Anfang." },
+            { id: 47, type: "self", cat: "Verdauung", q: "Welche Aufgabe hat die Magensäure im Magen?", a: "Mischen & Bakterien töten", r: "Sie macht den Brei weich und schützt vor Krankmachern." },
+            { id: 48, type: "transfer", cat: "Verdauung", context: "Ein Apfelstück ist nun ein flüssiger Brei und wandert durch den Dünndarm.", q: "Was passiert dort mit den wertvollen Vitaminen des Apfels?", opts: ["Sie werden verbrannt", "Sie gelangen ins Blut", "Sie werden zu Gift", "Sie bleiben im Darm"], correct: 1, r: "Der Dünndarm gibt die Nährstoffe an das Blut ab." },
+            { id: 49, type: "mc", cat: "Verdauung", q: "Wie heißt der Transportweg zwischen Mund und Magen?", opts: ["Luftröhre", "Speiseröhre", "Dünndarm", "Ader"], correct: 1, r: "Die Speiseröhre schiebt das Essen nach unten." },
+            { id: 50, type: "self", cat: "Verdauung", q: "Was ist die Hauptaufgabe der Leber?", a: "Speichern, Filtern, Entgiften", r: "Sie ist das wichtigste Labor deines Körpers." },
+            { id: 51, type: "transfer", cat: "Verdauung", context: "Nachdem alle Nährstoffe im Dünndarm aufgenommen wurden, bleiben Reste übrig.", q: "In welchen Darmabschnitt wandern diese Reste als Nächstes?", opts: ["Zurück in den Magen", "In den Dickdarm", "In die Lunge", "In die Niere"], correct: 1, r: "Der Dickdarm verarbeitet die Reste weiter." },
+            { id: 52, type: "mc", cat: "Verdauung", q: "Was ist die allerletzte Station der Verdauung vor der Ausscheidung?", opts: ["Magen", "Mastdarm", "Speiseröhre", "Leber"], correct: 1, r: "Hier sammeln sich die Reste im Mastdarm." },
+            { id: 53, type: "self", cat: "Verdauung", q: "Was passiert im Mund mit der Nahrung?", a: "Zähne zerkleinern sie", r: "Das ist der erste mechanische Schritt der Verdauung." },
+            { id: 54, type: "transfer", cat: "Verdauung", context: "Jemand hat versehentlich schlechte Bakterien mit dem Essen geschluckt.", q: "Welches Organ versucht diese mit einer starken Säure unschädlich zu machen?", opts: ["Die Lunge", "Der Magen", "Der Dünndarm", "Die Zunge"], correct: 1, r: "Die Magensäure ist eine starke Barriere gegen Bakterien." },
+
+            // --- NIEREN & BLASE (6 Karten) ---
+            { id: 55, type: "mc", cat: "Nieren", q: "Wo im Körper befinden sich deine zwei Nieren?", opts: ["Vorne im Hals", "Hinterer Teil des Bauches", "Im Kopf", "In den Beinen"], correct: 1, r: "Nieren liegen geschützt im hinteren Bauchraum." },
+            { id: 56, type: "self", cat: "Nieren", q: "Was filtern die Nieren aus dem Blut heraus?", a: "Giftstoffe & überschüssiges Wasser", r: "Daraus entsteht am Ende der Urin." },
+            { id: 57, type: "transfer", cat: "Nieren", context: "Du hast den ganzen Tag sehr viel Wasser getrunken.", q: "Was werden deine Nieren nun verstärkt tun?", opts: ["Nichts", "Mehr Urin produzieren", "Die Lunge füllen", "Das Herz stoppen"], correct: 1, r: "Sie regulieren den Wasserhaushalt und leiten Überschuss aus." },
+            { id: 58, type: "mc", cat: "Nieren", q: "Wo wird der Urin gespeichert, bevor du zur Toilette gehst?", opts: ["Im Magen", "In der Leber", "In der Blase", "In den Nieren"], correct: 2, r: "Die Blase im Becken dient als Speicher." },
+            { id: 59, type: "self", cat: "Nieren", q: "Welches Signal sagt deinem Gehirn, dass es Zeit für den Toilettengang ist?", a: "Druckgefühl", r: "Eine volle Blase drückt gegen die Wände und sendet Signale." },
+            { id: 60, type: "transfer", cat: "Nieren", context: "Deine Nieren arbeiten wie eine Kläranlage.", q: "Was würde passieren, wenn sie ihre Arbeit plötzlich einstellen würden?", opts: ["Man wird superfit", "Giftstoffe würden im Blut bleiben", "Man bekommt mehr Hunger", "Die Haare fallen aus"], correct: 1, r: "Ohne Nieren würde das Blut mit Giftstoffen verschmutzen." }
+        ];
+
+        let userProgress = {};
+        let currentSession = [];
+        let currIdx = 0;
+        let isAnswered = false;
+
+        function init() {
+            const saved = localStorage.getItem('anatomie_v60_progress');
+            if (saved) userProgress = JSON.parse(saved);
+            else cardsData.forEach(c => userProgress[c.id] = 1);
+            updateStats();
+        }
+
+        function updateStats() {
+            const counts = {1:0, 2:0, 3:0, 4:0};
+            Object.keys(userProgress).forEach(id => {
+                const box = userProgress[id];
+                if(counts[box] !== undefined) counts[box]++;
+            });
+            for(let i=1; i<=4; i++) {
+                document.getElementById(`box${i}-count`).innerText = counts[i];
+            }
+        }
+
+        function startSession() {
+            const getBox = (n) => cardsData.filter(c => userProgress[c.id] === n).sort(() => Math.random() - 0.5);
+            
+            // Strikte Mischung: 5 aus 1, 3 aus 2, 2 aus 3
+            let box1 = getBox(1);
+            let box2 = getBox(2);
+            let box3 = getBox(3);
+            let box4 = getBox(4); // Falls Box 3 leer ist
+
+            currentSession = [
+                ...box1.slice(0, 5),
+                ...box2.slice(0, 3),
+                ...box3.slice(0, 2)
+            ];
+
+            // Auffüllen falls Boxen leer sind
+            if (currentSession.length < 10) {
+                let all = [...box1, ...box2, ...box3, ...box4].filter(c => !currentSession.includes(c));
+                currentSession = [...currentSession, ...all.slice(0, 10 - currentSession.length)];
+            }
+
+            // Zufällige Reihenfolge in der Session
+            currentSession.sort(() => Math.random() - 0.5);
+
+            if(currentSession.length === 0) return alert("Alle Karten gelernt!");
+
+            currIdx = 0;
+            document.getElementById('start-screen').classList.add('hidden');
+            showCard();
+        }
+
+        function showCard() {
+            isAnswered = false;
+            const card = currentSession[currIdx];
+            document.getElementById('progress-bar').style.width = ((currIdx) / currentSession.length * 100) + "%";
+            document.getElementById('feedback-box').classList.add('hidden');
+            
+            if (card.type === 'self') {
+                document.getElementById('interactive-ui').classList.add('hidden');
+                document.getElementById('flashcard-ui').classList.remove('hidden');
+                document.getElementById('card-inner-element').classList.remove('card-flipped');
+                document.getElementById('self-cat').innerText = card.cat;
+                document.getElementById('self-q').innerText = card.q;
+                document.getElementById('self-a').innerText = card.a;
+                document.getElementById('self-r').innerText = card.r;
+            } else {
+                document.getElementById('flashcard-ui').classList.add('hidden');
+                document.getElementById('interactive-ui').classList.remove('hidden');
+                document.getElementById('task-cat').innerText = card.cat;
+                
+                const label = document.getElementById('task-type-label');
+                label.innerText = (card.type === 'transfer' ? 'Denk-Aufgabe' : 'Wissen');
+                label.className = `text-sm px-4 py-1 rounded-full font-bold uppercase ${card.type === 'transfer' ? 'bg-indigo-100 text-indigo-600' : 'bg-blue-100 text-blue-600'}`;
+                
+                const contextEl = document.getElementById('task-context');
+                if(card.context) {
+                    contextEl.innerText = "💡 " + card.context;
+                    contextEl.classList.remove('hidden');
+                } else {
+                    contextEl.classList.add('hidden');
+                }
+
+                document.getElementById('task-q').innerText = card.q;
+                document.getElementById('task-r').innerText = card.r;
+                
+                const box = document.getElementById('options-box');
+                box.innerHTML = '';
+                card.opts.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-left p-5 rounded-3xl border-4 border-slate-100 hover:border-blue-300 hover:bg-blue-50 transition-all text-lg md:text-xl font-bold bg-white text-slate-700 shadow-sm";
+                    btn.innerText = opt;
+                    btn.onclick = () => checkInteractive(idx, btn);
+                    box.appendChild(btn);
+                });
+            }
+        }
+
+        function checkInteractive(selectedIndex, btnElement) {
+            if (isAnswered) return;
+            isAnswered = true;
+            const card = currentSession[currIdx];
+            const isCorrect = selectedIndex === card.correct;
+            
+            const buttons = document.getElementById('options-box').querySelectorAll('button');
+            buttons.forEach((btn, idx) => {
+                btn.onclick = null;
+                if (idx === card.correct) {
+                    btn.classList.replace('border-slate-100', 'border-emerald-500');
+                    btn.classList.add('bg-emerald-50', 'text-emerald-700');
+                } else if (idx === selectedIndex) {
+                    btn.classList.replace('border-slate-100', 'border-rose-500');
+                    btn.classList.add('bg-rose-50', 'text-rose-700');
+                }
+            });
+
+            const fTitle = document.getElementById('feedback-title');
+            const fIcon = document.getElementById('feedback-icon');
+            fTitle.innerText = isCorrect ? "Richtig gelöst!" : "Schau mal hier:";
+            fTitle.className = "font-black text-2xl " + (isCorrect ? "text-emerald-600" : "text-rose-600");
+            fIcon.className = "w-14 h-14 rounded-2xl flex items-center justify-center text-white text-3xl font-bold " + (isCorrect ? "bg-emerald-500" : "bg-rose-500");
+            fIcon.innerText = isCorrect ? "✓" : "✕";
+
+            updateBox(card.id, isCorrect);
+            document.getElementById('feedback-box').classList.remove('hidden');
+        }
+
+        function flipCard() { document.getElementById('card-inner-element').classList.add('card-flipped'); }
+
+        function handleResult(correct) {
+            updateBox(currentSession[currIdx].id, correct);
+            handleNext();
+        }
+
+        function updateBox(id, correct) {
+            if (correct) { if (userProgress[id] < 4) userProgress[id]++; }
+            else userProgress[id] = 1;
+            localStorage.setItem('anatomie_v60_progress', JSON.stringify(userProgress));
+            updateStats();
+        }
+
+        function handleNext() {
+            currIdx++;
+            if (currIdx < currentSession.length) showCard();
+            else finish();
+        }
+
+        function finish() {
+            document.getElementById('interactive-ui').classList.add('hidden');
+            document.getElementById('flashcard-ui').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('start-screen').querySelector('h2').innerText = "Runde beendet!";
+            document.getElementById('start-screen').querySelector('p').innerHTML = "Du hast alle 10 Karten für heute geschafft.<br>Deine Boxen haben sich aktualisiert!";
+            document.getElementById('progress-bar').style.width = "100%";
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
