@@ -318,25 +318,46 @@
             }
         }
 
-        function checkAnswer(idx, btn) {
-            if(isAnswered) return;
-            isAnswered = true;
-            const card = currentSession[currIdx];
-            const correct = idx === card.correct;
-            
-            document.querySelectorAll('#options-box button').forEach((b, i) => {
-                if(i === card.correct) b.className = "w-full text-left p-5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-bold text-lg shadow-inner";
-                else if(i === idx) b.className = "w-full text-left p-5 rounded-2xl border-2 border-rose-500 bg-rose-50 text-rose-800 font-bold text-lg shadow-inner";
-                else b.style.opacity = "0.3";
-            });
-            
-            document.getElementById('feedback-title').innerText = correct ? "Richtig!" : "Knapp daneben...";
-            document.getElementById('feedback-icon').className = "w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-2xl " + (correct ? "bg-emerald-500" : "bg-rose-500");
-            document.getElementById('feedback-icon').innerText = correct ? "✓" : "✕";
-            
-            updateBox(card.id, correct);
-            document.getElementById('feedback-box').classList.remove('hidden');
+       function checkAnswer(idx, btn) {
+    if(isAnswered) return;
+    isAnswered = true;
+    const card = currentSession[currIdx];
+    const correct = idx === card.correct;
+    
+    document.querySelectorAll('#options-box button').forEach((b, i) => {
+        // Grunddesign beibehalten, aber Farben überschreiben
+        b.className = "w-full text-left p-5 rounded-2xl border-2 font-bold text-lg transition-all";
+        
+        if(i === card.correct) {
+            // Richtig: Sanftes Salbeigrün
+            b.style.backgroundColor = "#eaf2ea"; 
+            b.style.borderColor = "#86a687"; 
+            b.style.color = "#2d4a2d";
+            b.classList.add("shadow-inner");
+        } else if(i === idx) {
+            // Falsch: Sanftes Altrosa
+            b.style.backgroundColor = "#f9f1f1"; 
+            b.style.borderColor = "#d68a8a";
+            b.style.color = "#5c3a3a";
+            b.classList.add("shadow-inner");
+        } else {
+            b.style.opacity = "0.3";
+            b.style.borderColor = "transparent";
         }
+    });
+    
+    // Feedback-Box Titel und Icon
+    document.getElementById('feedback-title').innerText = correct ? "Richtig!" : "Knapp daneben...";
+    
+    const iconEl = document.getElementById('feedback-icon');
+    // Icon Design (Größe/Form) beibehalten, nur Farbe ändern
+    iconEl.className = "w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-2xl";
+    iconEl.style.backgroundColor = correct ? "#86a687" : "#d68a8a";
+    iconEl.innerText = correct ? "✓" : "✕";
+    
+    updateBox(card.id, correct);
+    document.getElementById('feedback-box').classList.remove('hidden');
+}
 
         function flipCard() { document.getElementById('card-inner-element').classList.add('card-flipped'); }
 
