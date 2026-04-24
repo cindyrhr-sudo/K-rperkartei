@@ -47,24 +47,37 @@
         </div>
 
         <!-- Boxen-Header -->
-        <div class="grid grid-cols-4 gap-2 bg-white/5 p-4 rounded-b-2xl border border-white/10 mb-4 shadow-xl shrink-0">
-            <div class="text-center text-white">
-                <div class="text-[10px] opacity-40 font-bold uppercase mb-1">Box 1</div>
-                <div id="box1-count" class="text-xl font-black">0</div>
-            </div>
-            <div class="text-center text-white">
-                <div class="text-[10px] opacity-40 font-bold uppercase mb-1">Box 2</div>
-                <div id="box2-count" class="text-xl font-black">0</div>
-            </div>
-            <div class="text-center text-white">
-                <div class="text-[10px] opacity-40 font-bold uppercase mb-1">Box 3</div>
-                <div id="box3-count" class="text-xl font-black">0</div>
-            </div>
-            <div class="text-center text-emerald-400">
-                <div class="text-[10px] opacity-60 font-bold uppercase mb-1 italic text-emerald-500">Gelernt</div>
-                <div id="box4-count" class="text-xl font-black">0</div>
-            </div>
-        </div>
+     <!-- Boxen-Header -->
+<!-- Der Container hat 'gap-2', damit zwischen den farbigen Boxen ein kleiner Abstand ist -->
+<div class="grid grid-cols-4 gap-2 bg-white/5 p-4 rounded-b-2xl border border-white/10 mb-4 shadow-xl shrink-0">
+    
+    <!-- Box 1: Blau -->
+    <!-- Wir fügen 'bg-blue-500/20' für den Hintergrund und 'rounded-lg' für die Form hinzu -->
+    <div class="text-center text-white bg-blue-500/20 p-2 rounded-lg border border-blue-500/30">
+        <div class="text-[10px] opacity-60 font-bold uppercase mb-1">Box 1</div>
+        <div id="box1-count" class="text-xl font-black">0</div>
+    </div>
+
+    <!-- Box 2: Violett -->
+    <div class="text-center text-white bg-purple-500/20 p-2 rounded-lg border border-purple-500/30">
+        <div class="text-[10px] opacity-60 font-bold uppercase mb-1">Box 2</div>
+        <div id="box2-count" class="text-xl font-black">0</div>
+    </div>
+
+    <!-- Box 3: Orange -->
+    <div class="text-center text-white bg-amber-500/20 p-2 rounded-lg border border-amber-500/30">
+        <div class="text-[10px] opacity-60 font-bold uppercase mb-1">Box 3</div>
+        <div id="box3-count" class="text-xl font-black">0</div>
+    </div>
+
+    <!-- Box 4 (Gelernt): Smaragdgrün -->
+    <!-- Hier verstärken wir das Grün passend zum Text -->
+    <div class="text-center text-emerald-400 bg-emerald-500/20 p-2 rounded-lg border border-emerald-500/40">
+        <div class="text-[10px] opacity-80 font-bold uppercase mb-1 italic text-emerald-500">Gelernt</div>
+        <div id="box4-count" class="text-xl font-black">0</div>
+    </div>
+
+</div>
 
         <!-- Progress Bar -->
         <div class="w-full h-2 bg-black/40 rounded-full mb-4 overflow-hidden border border-white/5 shrink-0">
