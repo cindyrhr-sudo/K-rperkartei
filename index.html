@@ -54,19 +54,26 @@
         }
         .confetti { position: absolute; width: 10px; height: 10px; top: -20px; z-index: 210; animation: confetti-fall 3.5s linear forwards; }
 
-        /* Der Karteikarten-Look - Unverändert */
-        .index-card {
-            background: #fdf5e6;
-            background-image: 
-                linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
-                radial-gradient(circle, rgba(0,0,0,0.02) 1px, transparent 1px);
-            background-size: 100% 2.5rem, 3px 3px;
-            border: 1px solid #e5d3b3;
-            border-bottom: 3px solid #d4c19d;
-            border-right: 2px solid #d4c19d;
-            position: relative;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1), inset 0 0 40px rgba(0,0,0,0.02);
-        }
+        /* Der Karteikarten-Look  */
+      .index-card {
+  
+    background: #fdf5e6;
+    background-image: 
+        linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+        radial-gradient(circle, rgba(0,0,0,0.02) 1px, transparent 1px);
+    background-size: 100% 2.5rem, 3px 3px;
+    border: 1px solid #e5d3b3;
+    border-bottom: 3px solid #d4c19d;
+    border-right: 2px solid #d4c19d;
+    position: relative;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1), inset 0 0 40px rgba(0,0,0,0.02);
+
+    /* --- TECHNISCHE ANKER (Für die Funktionalität) --- */
+    display: flex;             /* Ermöglicht die Anordnung der inneren Elemente */
+    flex-direction: column;    /* Stapelt Frage und Buttons vertikal */
+    min-height: 0;             /* Erlaubt der Box zu schrumpfen, bevor sie das Layout sprengt */
+    overflow: hidden;          /* Standardmäßig sauber halten */
+}
 /* NEU: Scharfer Text für die Rückseite gegen den Nebel-Effekt */
 #self-r {
     color: #334155 !important; /* Sattes Dunkelgrau */
@@ -133,16 +140,21 @@
         </div>
 
         <div class="flex-1 relative min-h-0 z-10">
-           <div id="start-screen" class="index-card rounded-xl shadow-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center h-full absolute inset-0 z-20">
-    <div id="card-origin" class="text-6xl sm:text-8xl mb-4 sm:mb-6 animate-bounce">🦴</div>
-    <h2 class="text-xl sm:text-3xl font-black mb-2 sm:mb-4 uppercase tracking-tighter text-slate-700">Challenge bereit!</h2>
-    <p class="text-slate-600 mb-6 sm:mb-10 text-sm sm:text-lg leading-relaxed px-4 italic">Wir trainieren heute 10 Karten aus deinen Boxen.</p>
-    
-    <button onclick="startSession()" class="w-full max-w-xs bg-blue-600 text-white text-lg sm:text-2xl font-black py-4 sm:py-6 rounded-2xl shadow-lg active:scale-95 transition-all">Sitzung starten</button>
-    
-    <button onclick="resetProgress()" class="mt-6 text-slate-400 text-xs underline opacity-50 hover:opacity-100 transition-all uppercase tracking-widest">
-        Fortschritt zurücksetzen
-    </button>
+    <div id="start-screen" class="index-card rounded-xl shadow-2xl p-6 sm:p-8 flex flex-col items-center justify-between text-center h-full absolute inset-0 z-20">
+        
+        <div id="card-origin" class="text-6xl sm:text-8xl animate-bounce">🦴</div>
+        
+        <div class="space-y-2">
+            <h2 class="text-xl sm:text-3xl font-black uppercase tracking-tighter text-slate-700">Challenge bereit!</h2>
+            <p class="text-slate-600 text-sm sm:text-lg leading-relaxed px-4 italic">Wir trainieren heute 10 Karten aus deinen Boxen.</p>
+        </div>
+        
+        <div class="w-full max-w-xs flex flex-col gap-4">
+            <button onclick="startSession()" class="w-full bg-blue-600 text-white text-lg sm:text-2xl font-black py-4 sm:py-6 rounded-2xl shadow-lg active:scale-95 transition-all">Sitzung starten</button>
+            <button onclick="resetProgress()" class="text-slate-400 text-xs underline opacity-50 hover:opacity-100 transition-all uppercase tracking-widest">Fortschritt zurücksetzen</button>
+        </div>
+        
+    </div>
 </div>
 
             <div id="interactive-ui" class="hidden index-card rounded-xl shadow-2xl p-6 flex flex-col h-full absolute inset-0 z-20 overflow-y-auto">
