@@ -18,23 +18,20 @@
         .dynamic-text-xs { font-size: clamp(8px, 1.5vw, 10px); }
         .dynamic-text-xl { font-size: clamp(14px, 4vw, 24px); }
 
-        /* NEU: Die Boxen-Logik exakt nach deiner Bild-Vorlage */
         .status-bubble {
-            border-radius: 0.75rem; /* Abgerundete Ecken */
-            border-left: 6px solid; /* Der dicke linke Rand aus dem Bild */
+            border-radius: 0.75rem;
+            border-left: 6px solid;
             padding: 1rem;
             transition: all 0.3s ease;
             font-size: 1.1rem;
         }
 
-        /* Farbschemata für die Bubbles */
         .bubble-yellow { background-color: rgba(250, 204, 21, 0.1); border-color: #facc15; color: #facc15; }
         .bubble-blue   { background-color: rgba(59, 130, 246, 0.1); border-color: #3b82f6; color: #60a5fa; }
         .bubble-purple { background-color: rgba(168, 85, 247, 0.1); border-color: #a855f7; color: #c084fc; }
         .bubble-amber  { background-color: rgba(245, 158, 11, 0.1); border-color: #f59e0b; color: #fbbf24; }
         .bubble-green  { background-color: rgba(134, 166, 135, 0.1); border-color: #86a687; color: #86a687; }
 
-        /* Animationen - Unverändert */
         @keyframes pulse-box {
             0% { transform: scale(1); }
             40% { transform: scale(1.2); }
@@ -54,37 +51,41 @@
         }
         .confetti { position: absolute; width: 10px; height: 10px; top: -20px; z-index: 210; animation: confetti-fall 3.5s linear forwards; }
 
-        /* Der Karteikarten-Look  */
-      .index-card {
-  
-    background: #fdf5e6;
-    background-image: 
-        linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
-        radial-gradient(circle, rgba(0,0,0,0.02) 1px, transparent 1px);
-    background-size: 100% 2.5rem, 3px 3px;
-    border: 1px solid #e5d3b3;
-    border-bottom: 3px solid #d4c19d;
-    border-right: 2px solid #d4c19d;
-    position: relative;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.1), inset 0 0 40px rgba(0,0,0,0.02);
+        .index-card {
+            background: #fdf5e6;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+                radial-gradient(circle, rgba(0,0,0,0.02) 1px, transparent 1px);
+            background-size: 100% 2.5rem, 3px 3px;
+            border: 1px solid #e5d3b3;
+            border-bottom: 3px solid #d4c19d;
+            border-right: 2px solid #d4c19d;
+            position: relative;
+            /* DEIN ORIGINALER SCHATTEN */
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1), inset 0 0 40px rgba(0,0,0,0.02);
+            /* TECHNISCHE STABILITÄT */
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
 
-    /* --- TECHNISCHE ANKER (Für die Funktionalität) --- */
-    display: flex;             /* Ermöglicht die Anordnung der inneren Elemente */
-    flex-direction: column;    /* Stapelt Frage und Buttons vertikal */
-    min-height: 0;             /* Erlaubt der Box zu schrumpfen, bevor sie das Layout sprengt */
-    overflow: hidden;          /* Standardmäßig sauber halten */
-}
-/* NEU: Scharfer Text für die Rückseite gegen den Nebel-Effekt */
-#self-r {
-    color: #334155 !important; /* Sattes Dunkelgrau */
-    opacity: 1 !important;      /* Keine Transparenz */
-    font-weight: 500;           /* Etwas kräftigerer Strich */
-}
+        /* FIX GEGEN NEBEL-EFFEKT (Rückseite) */
+        .rotate-y-180 #self-r {
+            color: #334155 !important; 
+            opacity: 1 !important;
+            font-weight: 500;
+        }
+        .rotate-y-180 #self-cat-back {
+            background-color: #e2e8f0 !important; /* Etwas dunkleres Grau für das Label */
+            color: #1e293b !important;
+            opacity: 1 !important;
+        }
+        #self-a {
+            color: #2d4a2e !important; /* Kräftigeres Grün für die Lösung */
+            opacity: 1 !important;
+        }
 
-#self-cat-back {
-    opacity: 1 !important;
-    color: #475569 !important;
-}
         .flying-card {
             position: fixed;
             pointer-events: none;
