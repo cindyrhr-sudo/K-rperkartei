@@ -190,44 +190,613 @@
 
     <script>
         const cardsData = [
-            // --- WIRBELSÄULE ---
-            { id: 1, type: "mc", cat: "Wirbelsäule", q: "Wie viele bewegliche Wirbelknochen bilden das Gerüst deines Rückens?", opts: ["12 Wirbel", "24 Wirbel", "7 Wirbel", "5 Wirbel"], correct: 1, r: "Richtig! Es sind 24 bewegliche Wirbel." },
-            { id: 2, type: "self", cat: "Wirbelsäule", q: "Welche wichtige Funktion erfüllt die Wirbelsäule für deinen gesamten Körper?", a: "Aufrechter Gang & Beweglichkeit", r: "Sie hält uns aufrecht und lässt uns den Rücken in verschiedene Richtungen biegen." },
-            { id: 3, type: "transfer", cat: "Wirbelsäule", context: "Stell dir vor, du trägst einen schweren Rucksack voller Steine.", q: "Welche Teile deiner Wirbelsäule werden dabei wie Schwämme zusammengepresst, um den Druck abzufedern?", opts: ["Die Wirbelknochen", "Die Bandscheiben", "Das Kreuzbein", "Das Steißbein"], correct: 1, r: "Die 23 Bandscheiben wirken wie Puffer-Schwämme bei Belastung." },
-            { id: 4, type: "mc", cat: "Wirbelsäule", q: "Wie viele Wirbel hat der oberste Abschnitt, die Halswirbelsäule?", opts: ["5 Wirbel", "7 Wirbel", "12 Wirbel", "24 Wirbel"], correct: 1, r: "Korrekt! Die Halswirbelsäule besteht aus 7 Wirbeln." },
-            { id: 5, type: "self", cat: "Wirbelsäule", q: "Wie heißen die zwei Abschnitte am untersten Ende der Wirbelsäule, bei denen die Wirbel fest verwachsen sind?", a: "Kreuzbein & Steißbein", r: "Diese bilden den festen Abschluss deines Rückgrats." },
-            { id: 6, type: "transfer", cat: "Wirbelsäule", context: "Du zählst die Wirbel in deinem Brustbereich, an denen auch die Rippen befestigt sind.", q: "Wie viele Brustwirbel müsstest du zählen?", opts: ["7 Stück", "5 Stück", "12 Stück", "24 Stück"], correct: 2, r: "Die Brustwirbelsäule besteht aus genau 12 Wirbeln." },
-            { id: 7, type: "mc", cat: "Wirbelsäule", q: "Welches Material zwischen den Wirbeln wirkt wie ein kleiner Schwamm?", opts: ["Knorpel", "Bandscheiben", "Muskelfasern", "Knochenmark"], correct: 1, r: "Die Bandscheiben (23 Stück) puffern Stöße ab." },
-            { id: 8, type: "self", cat: "Wirbelsäule", q: "Wie viele Wirbel besitzt der Bereich deiner Lendenwirbelsäule?", a: "5 Wirbel", r: "Das ist der Bereich im unteren Rücken, der oft viel Gewicht tragen muss." },
-            { id: 9, type: "transfer", cat: "Wirbelsäule", context: "Deine Wirbelsäule wird oft mit einer Kette verglichen.", q: "Warum ist dieser Vergleich besser als der Vergleich mit einem festen Stab?", opts: ["Weil sie aus Metall ist", "Weil sie rostet", "Weil sie durch viele Glieder beweglich ist", "Weil sie im Wasser sinkt"], correct: 2, r: "Wie eine Kette aus vielen Gliedern ermöglichen die einzelnen Wirbel die Biegsamkeit." },
-            // --- GELENKE ---
-            { id: 10, type: "mc", cat: "Gelenke", q: "Welches Gelenk hat einen runden Kopf und eine passende Schale (Pfanne)?", opts: ["Sattelgelenk", "Scharniergelenk", "Kugelgelenk", "Drehgelenk"], correct: 2, r: "Das Kugelgelenk ist nach seiner Form benannt." },
-            { id: 11, type: "self", cat: "Gelenke", q: "Nenne ein Beispiel für ein Kugelgelenk in deinem Körper!", a: "Schulter oder Hüfte", r: "Diese Gelenke lassen sich kreisen und in fast alle Richtungen bewegen." },
-            { id: 12, type: "transfer", cat: "Gelenke", context: "Du willst deinen Arm am Ellenbogen so weit nach hinten biegen wie beim Kreisen der Schulter.", q: "Warum geht das nicht?", opts: ["Die Muskeln sind zu kurz", "Der Ellenbogen ist ein Scharniergelenk", "Der Knochen ist im Weg", "Man muss mehr trainieren"], correct: 1, r: "Ein Scharniergelenk lässt sich nur beugen und strecken, nicht kreisen." },
-            { id: 13, type: "mc", cat: "Gelenke", q: "Welches Gelenk ähnelt in seiner Form einer kleinen Rolle?", opts: ["Kugelgelenk", "Sattelgelenk", "Scharniergelenk", "Eigelenk"], correct: 2, r: "Das Scharniergelenk (z.B. Ellenbogen) sieht aus wie eine Rolle." },
-            { id: 14, type: "self", cat: "Gelenke", q: "Was ist das Besondere am Sattelgelenk des Daumens?", a: "Bewegung zum Körper hin & weg", r: "Es besteht aus zwei sattelförmigen Teilen, die ineinandergreifen." },
-            { id: 15, type: "transfer", cat: "Gelenke", context: "Du greifst nach einer kleinen Murmel mit Daumen und Zeigefinger.", q: "Welches Gelenk im Daumen macht diesen präzisen Griff erst möglich?", opts: ["Das Scharniergelenk", "Das Kugelgelenk", "Das Sattelgelenk", "Das Wirbelgelenk"], correct: 2, r: "Nur durch das Sattelgelenk kann der Daumen den anderen Fingern gegenübergestellt werden." },
-            { id: 16, type: "mc", cat: "Gelenke", q: "In wie viele Richtungen lässt sich ein Kugelgelenk bewegen?", opts: ["Nur in zwei", "In fast alle Richtungen", "Nur auf und zu", "Gar nicht"], correct: 1, r: "Dank der Kugelform ist es extrem flexibel." },
-            { id: 17, type: "self", cat: "Gelenke", q: "Was kann ein Scharniergelenk (wie am Ellenbogen) leisten?", a: "Beugen und Strecken", r: "Mehr Richtungen sind bei diesem Gelenktyp nicht vorgesehen." },
-            { id: 18, type: "transfer", cat: "Gelenke", context: "Ein Roboter-Arm soll sich genau so bewegen wie dein Daumen.", q: "Welches mechanische Teil müsste der Erfinder in das Daumengelenk bauen?", opts: ["Eine Kugel", "Einen Türriegel", "Zwei Sättel", "Einen festen Nagel"], correct: 2, r: "Zwei ineinander greifende Sättel bilden das Sattelgelenk nach." },
-            // ... (Hier sind alle 60 Karten enthalten, gekürzt für die Übersichtlichkeit)
-            // --- KRAFT & TRAINING ---
-            { id: 19, type: "mc", cat: "Kraft", q: "Welche Kraftart brauchst du für einen plötzlichen, hohen Kraftaufwand in ganz kurzer Zeit?", opts: ["Maximalkraft", "Kraftausdauer", "Schnellkraft", "Ruhekraft"], correct: 2, r: "Schnellkraft ist für explosive Bewegungen wie Sprünge da." },
-            { id: 20, type: "self", cat: "Kraft", q: "Nenne die drei verschiedenen Kraftarten!", a: "Maximalkraft, Kraftausdauer, Schnellkraft", r: "Diese drei Arten trainieren Sportler ganz unterschiedlich." },
-            { id: 21, type: "transfer", cat: "Kraft", context: "Ein Gewichtheber versucht sein schwerstes Gewicht einmalig hochzuheben.", q: "Welche Kraftart nutzt er in diesem Moment?", opts: ["Schnellkraft", "Kraftausdauer", "Maximalkraft", "Wanderkraft"], correct: 2, r: "Maximalkraft ist die höchste Kraft, die man einmalig aufbringen kann." },
-            { id: 22, type: "mc", cat: "Kraft", q: "Warum ist Krafttraining wichtig für deine Gelenke und Knochen?", opts: ["Man wird größer", "Es schützt den passiven Bewegungsapparat", "Man muss weniger essen", "Die Haut wird dicker"], correct: 1, r: "Starke Muskeln entlasten Gelenke und beugen Schäden vor." },
-            { id: 23, type: "self", cat: "Kraft", q: "Nach welchem Prinzip wächst die Kraft in deinem Körper?", a: "Zunehmende Belastung", r: "Nur wenn der Widerstand (das Gewicht) langsam gesteigert wird, wächst der Muskel." },
-            { id: 24, type: "transfer", cat: "Kraft", context: "Lukas macht 50 Liegestütze hintereinander, ohne schlapp zu machen.", q: "Welche Kraftart hat er besonders gut trainiert?", opts: ["Schnellkraft", "Maximalkraft", "Kraftausdauer", "Sprungkraft"], correct: 2, r: "Kraftausdauer lässt dich eine Übung über lange Zeit wiederholen." },
-            { id: 25, type: "mc", cat: "Kraft", q: "Was wird durch Krafttraining primär geschützt?", opts: ["Die Haare", "Gelenke und Knochen", "Die Fingernägel", "Die Nase"], correct: 1, r: "Gelenke und Knochen bilden den passiven Apparat, den Muskeln stützen." },
-            { id: 26, type: "self", cat: "Kraft", q: "Was verhindert regelmäßiges Training bei deiner Körperhaltung?", a: "Haltungsschäden", r: "Ein starker Rücken hält die Wirbelsäule gerade." },
-            { id: 27, type: "transfer", cat: "Kraft", context: "Jemand hebt jeden Tag den exakt gleichen, leichten Federball hoch.", q: "Wird seine Kraft dadurch nach dem Prinzip der Belastung stark wachsen?", opts: ["Ja, Übung macht den Meister", "Nein, es fehlt die zunehmende Belastung", "Nur wenn er dabei singt", "Nur im Sommer"], correct: 1, r: "Ohne Steigerung der Belastung gibt es keinen Kraftzuwachs." },
-            // ... (Fortsetzung folgt bis ID 60 wie in Teil 1 geliefert)
-            { id: 60, type: "transfer", cat: "Nieren", context: "Deine Nieren arbeiten wie eine Kläranlage.", q: "Was würde passieren, wenn sie ihre Arbeit plötzlich einstellen würden?", opts: ["Man wird superfit", "Giftstoffe würden im Blut bleiben", "Man bekommt mehr Hunger", "Die Haare fallen aus"], correct: 1, r: "Ohne Nieren würde das Blut mit Giftstoffen verschmutzen." }
-        ];
+            // --- LERNKARTEN BLOCK 1: WIRBELSÄULE, GELENKE, KRAFT, HERZ, ATMUNG, NIEREN, GEHIRN, SINNE, VERDAUUNG & HAUT ---
 
-        // Die restlichen 30 Karten sind im Speicher des Modells und im fertigen Code-Block enthalten.
-        // (Ich habe hier alle Karten aus Teil 1 übernommen).
+[
+// --- FAKT: Aufbau der Wirbelsäule (24 Wirbel + Abschnitte) ---
+{
+"id": 1, "type": "mc", "cat": "Wirbelsäule",
+"q": "Aus wie vielen beweglichen Wirbelknochen besteht deine Wirbelsäule insgesamt?",
+"opts": ["7 Wirbel", "12 Wirbel", "24 Wirbel", "33 Wirbel"], "correct": 2,
+"r": "Richtig! Es sind 24 Wirbelknochen, die uns beweglich halten."
+},
+{
+"id": 2, "type": "self", "cat": "Wirbelsäule",
+"q": "Nenne die drei Abschnitte der Wirbelsäule und die Anzahl ihrer Wirbel!",
+"a": "Hals (7), Brust (12), Lenden (5)",
+"r": "Sehr gut! Zusammen ergeben sie die 24 Wirbel deines Rückgrats."
+},
+{
+"id": 3, "type": "transfer", "cat": "Wirbelsäule",
+"context": "Stell dir vor, deine Wirbelsäule bestünde nur aus einem einzigen, langen Knochenstab.",
+"q": "Was könntest du dann NICHT mehr tun?",
+"opts": ["Atmen", "Dich bücken oder drehen", "Essen", "Denken"], "correct": 1,
+"r": "Richtig! Erst die vielen einzelnen Wirbel machen deinen Rücken biegsam."
+},
 
+// --- FAKT: Halswirbelsäule (7 Wirbel) ---
+{
+"id": 4, "type": "mc", "cat": "Wirbelsäule",
+"q": "Wie viele Wirbel bilden den obersten Teil, die Halswirbelsäule?",
+"opts": ["5 Wirbel", "12 Wirbel", "7 Wirbel", "24 Wirbel"], "correct": 2,
+"r": "Korrekt! Die Halswirbelsäule besteht aus 7 Wirbeln."
+},
+
+// --- FAKT: Brustwirbelsäule (12 Wirbel) ---
+{
+"id": 5, "type": "mc", "cat": "Wirbelsäule",
+"q": "Wie viele Wirbelknochen bilden den mittleren Teil, die Brustwirbelsäule?",
+"opts": ["7 Wirbel", "12 Wirbel", "5 Wirbel", "24 Wirbel"], "correct": 1,
+"r": "Stimmt genau! Es sind 12 Brustwirbel."
+},
+
+// --- FAKT: Lendenwirbelsäule (5 Wirbel) ---
+{
+"id": 6, "type": "mc", "cat": "Wirbelsäule",
+"q": "Wie viele Wirbel hat die Lendenwirbelsäule im unteren Rücken?",
+"opts": ["5 Wirbel", "7 Wirbel", "12 Wirbel", "24 Wirbel"], "correct": 0,
+"r": "Richtig! Die Lendenwirbelsäule besteht aus 5 Wirbeln."
+},
+
+// --- FAKT: Bandscheiben (23 Stück / Funktion) ---
+{
+"id": 7, "type": "mc", "cat": "Wirbelsäule",
+"q": "Was liegt wie ein kleiner Schwamm zwischen deinen Wirbelknochen?",
+"opts": ["Muskeln", "Bandscheiben", "Nerven", "Haut"], "correct": 1,
+"r": "Richtig! Es gibt 23 Bandscheiben in deinem Rücken."
+},
+{
+"id": 8, "type": "self", "cat": "Wirbelsäule",
+"q": "Welche Aufgabe haben die 23 Bandscheiben?",
+"a": "Sie federn Druck und Stöße ab (wie Puffer).",
+"r": "Genau, sie schützen die Wirbel vor Erschütterungen."
+},
+{
+"id": 9, "type": "transfer", "cat": "Wirbelsäule",
+"context": "Du springst von einer Mauer auf den Boden.",
+"q": "Welches Bauteil deiner Wirbelsäule verhindert, dass die Knochen dabei hart aufeinander prallen?",
+"opts": ["Die Rippen", "Die Bandscheiben", "Das Steißbein", "Die Muskeln"], "correct": 1,
+"r": "Richtig! Die Bandscheiben wirken wie kleine Stoßdämpfer."
+},
+
+// --- FAKT: Kreuzbein & Steißbein ---
+{
+"id": 10, "type": "self", "cat": "Wirbelsäule",
+"q": "Wie heißen die zwei untersten Abschnitte, an denen die Wirbel fest verwachsen sind?",
+"a": "Kreuzbein und Steißbein",
+"r": "Diese bilden den stabilen Abschluss deines Rückgrats."
+},
+
+// --- FAKT: Gelenke allgemein ---
+{
+"id": 11, "type": "self", "cat": "Gelenke",
+"q": "Was ist die Hauptaufgabe deiner Gelenke?",
+"a": "Sie verbinden Knochen und machen uns beweglich.",
+"r": "Richtig! Ohne Gelenke wäre unser Skelett starr."
+},
+
+// --- FAKT: Kugelgelenk ---
+{
+"id": 12, "type": "mc", "cat": "Gelenke",
+"q": "Welches Gelenk ermöglicht Drehungen in fast alle Richtungen?",
+"opts": ["Scharniergelenk", "Sattelgelenk", "Kugelgelenk", "Wirbelgelenk"], "correct": 2,
+"r": "Korrekt! Das Kugelgelenk ist das beweglichste Gelenk."
+},
+{
+"id": 13, "type": "self", "cat": "Gelenke",
+"q": "Wo in deinem Körper findest du ein Kugelgelenk?",
+"a": "In der Schulter (oder Hüfte).",
+"r": "Dort liegt ein runder Gelenkkopf in einer Pfanne."
+},
+{
+"id": 14, "type": "transfer", "cat": "Gelenke",
+"context": "Ein Erfinder baut eine Puppe, die ihre Arme im Kreis schwingen soll.",
+"q": "Welche Gelenkform muss er für die Schulter der Puppe wählen?",
+"opts": ["Sattelgelenk", "Kugelgelenk", "Scharniergelenk", "Bandscheibe"], "correct": 1,
+"r": "Richtig! Nur das Kugelgelenk erlaubt kreisende Bewegungen."
+},
+
+// --- FAKT: Scharniergelenk ---
+{
+"id": 15, "type": "mc", "cat": "Gelenke",
+"q": "Welches Gelenk funktioniert wie eine Türangel und lässt sich nur beugen und strecken?",
+"opts": ["Kugelgelenk", "Sattelgelenk", "Scharniergelenk", "Rollgelenk"], "correct": 2,
+"r": "Richtig! Es heißt Scharniergelenk."
+},
+{
+"id": 16, "type": "self", "cat": "Gelenke",
+"q": "Nenne ein Beispiel für ein Scharniergelenk!",
+"a": "Ellenbogengelenk (oder Knie).",
+"r": "Dort gleitet eine Rolle in einer Vertiefung."
+},
+{
+"id": 17, "type": "transfer", "cat": "Gelenke",
+"context": "Du versuchst, deinen Ellenbogen zur Seite zu drehen, ohne die Schulter zu bewegen.",
+"q": "Warum klappt das nicht?",
+"opts": ["Die Haut ist zu fest", "Das Scharniergelenk erlaubt nur auf und zu", "Der Knochen ist gebrochen", "Die Muskeln schlafen"], "correct": 1,
+"r": "Genau! Ein Scharniergelenk ist wie eine Tür: nur auf und zu."
+},
+
+// --- FAKT: Sattelgelenk ---
+{
+"id": 18, "type": "self", "cat": "Gelenke",
+"q": "Welche Form haben die Teile eines Sattelgelenks?",
+"a": "Sie sind wie ein Reitsattel geformt.",
+"r": "Richtig! Sie greifen ineinander wie zwei Sättel."
+},
+{
+"id": 19, "type": "transfer", "cat": "Gelenke",
+"context": "Ohne dieses Gelenk könntest du keinen Stift präzise halten.",
+"q": "Welches Gelenk am Daumen ermöglicht Bewegungen in zwei Richtungen?",
+"opts": ["Kugelgelenk", "Scharniergelenk", "Sattelgelenk", "Drehgelenk"], "correct": 2,
+"r": "Korrekt! Das Sattelgelenk macht den Daumen besonders geschickt."
+},
+
+// --- FAKT: Kraftarten ---
+{
+"id": 20, "type": "self", "cat": "Kraft",
+"q": "Wie heißen die drei Kraftarten des Menschen?",
+"a": "Maximalkraft, Kraftausdauer und Schnellkraft.",
+"r": "Richtig! Diese drei braucht dein Körper für verschiedene Aufgaben."
+},
+{
+"id": 21, "type": "mc", "cat": "Kraft",
+"q": "Welche Kraft brauchst du für explosive Bewegungen wie einen Sprint oder einen Sprung?",
+"opts": ["Laufkraft", "Schnellkraft", "Maximalkraft", "Kraftausdauer"], "correct": 1,
+"r": "Richtig! Schnellkraft lässt dich in kurzer Zeit viel Gas geben."
+},
+{
+"id": 22, "type": "transfer", "cat": "Kraft",
+"context": "Eine Ballerina springt beim Ballett hoch in die Luft.",
+"q": "Welche Kraftart nutzt sie für diesen plötzlichen Sprung?",
+"opts": ["Kraftausdauer", "Schnellkraft", "Ruhekraft", "Maximalkraft"], "correct": 1,
+"r": "Richtig! Sprünge benötigen Schnellkraft."
+},
+
+// --- FAKT: Trainingseffekt & Belastung ---
+{
+"id": 23, "type": "mc", "cat": "Kraft",
+"q": "Was muss passieren, wenn du stärker werden willst?",
+"opts": ["Man muss weniger trainieren", "Man muss die Belastung für den Körper immer weiter steigern", "Man muss mehr schlafen", "Man muss nur zuschauen"], "correct": 1,
+"r": "Korrekt! Nur wenn du die Belastung steigerst, wächst die Kraft."
+},
+{
+"id": 24, "type": "self", "cat": "Kraft",
+"q": "Was schützt Krafttraining in deinem Körper zusätzlich?",
+"a": "Deine Gelenke und die Haltung.",
+"r": "Richtig! Starke Muskeln stützen dein gesamtes System."
+},
+{
+"id": 25, "type": "transfer", "cat": "Kraft",
+"context": "Tim hebt seit einem Jahr jeden Tag die gleiche, leichte Feder hoch.",
+"q": "Wird er dadurch viel stärker?",
+"opts": ["Ja, Übung macht den Meister", "Nein, die Belastung wird nicht gesteigert", "Nur wenn es eine schwere Feder ist", "Nur am Wochenende"], "correct": 1,
+"r": "Stimmt! Ohne Steigerung der Belastung gewöhnt sich der Muskel nur daran."
+},
+
+// --- BEREICH: HERZ ---
+{
+"id": 26, "type": "mc", "cat": "Herz",
+"q": "Wo genau in deiner Brust liegt dein Herz?",
+"opts": ["Genau in der Mitte", "Ein bisschen versetzt auf der linken Seite", "Ganz weit unten im Bauch", "Auf der rechten Seite"], "correct": 1,
+"r": "Richtig! Es liegt leicht versetzt auf der linken Seite."
+},
+{
+"id": 27, "type": "self", "cat": "Herz",
+"q": "Beschreibe die genaue Lage deines Herzens!",
+"a": "In der Brust, leicht versetzt auf der linken Seite.",
+"r": "Genau! Dort kannst du es meistens auch am besten klopfen hören."
+},
+{
+"id": 28, "type": "transfer", "cat": "Herz",
+"context": "Du sollst dir bei der Nationalhymne die Hand auf das Herz legen.",
+"q": "Wohin genau bewegst du deine Hand?",
+"opts": ["Auf die rechte Brustseite", "In die Mitte des Bauches", "Leicht nach links auf die Brust", "An den Hals"], "correct": 2,
+"r": "Richtig! Da das Herz links sitzt, legt man die Hand dorthin."
+},
+{
+"id": 29, "type": "mc", "cat": "Herz",
+"q": "Welcher Gegenstand hat etwa die gleiche Form und Größe wie dein Herz?",
+"opts": ["Ein Fußball", "Deine geschlossene Faust", "Ein flacher Teller", "Ein spitzer Bleistift"], "correct": 1,
+"r": "Korrekt! Dein Herz ist etwa so groß wie deine Faust."
+},
+{
+"id": 30, "type": "self", "cat": "Herz",
+"q": "Wie groß ist das Herz eines Erwachsenen in Zentimetern?",
+"a": "Etwa 15 cm lang.",
+"r": "Richtig! Es wächst mit dem Körper mit."
+},
+{
+"id": 31, "type": "transfer", "cat": "Herz",
+"context": "Zwei Kinder vergleichen die Größe ihrer Herzen.",
+"q": "Worauf müssen sie schauen, um zu wissen, wie groß ihr eigenes Herz ungefähr ist?",
+"opts": ["Auf ihre Schuhgröße", "Auf ihre geschlossene Faust", "Auf ihre Körperlänge", "Auf ihre Nasenspitze"], "correct": 1,
+"r": "Genau! Die eigene Faust ist ein super Maßstab für das eigene Herz."
+},
+{
+"id": 32, "type": "mc", "cat": "Herz",
+"q": "Womit muss das Herz alle Organe deines Körpers ständig versorgen?",
+"opts": ["Nur mit Wasser", "Mit Blut, Sauerstoff und Nährstoffen", "Mit Luft und Müll", "Mit Knochenstücken"], "correct": 1,
+"r": "Richtig! Das Herz ist der Lieferdienst für deinen Körper."
+},
+{
+"id": 33, "type": "self", "cat": "Herz",
+"q": "Was ist die Hauptaufgabe des Herzens?",
+"a": "Die Versorgung aller Organe mit Blut, Sauerstoff und Nährstoffen.",
+"r": "Stimmt! Ohne diese Versorgung könnten die Organe nicht arbeiten."
+},
+{
+"id": 34, "type": "transfer", "cat": "Herz",
+"context": "Stell dir vor, das Herz wäre ein Postbote.",
+"q": "Was sind die Pakete, die er in jede Zelle deines Körpers liefert?",
+"opts": ["Briefe und Karten", "Sauerstoff und Nährstoffe", "alte Zeitungen", "Steine"], "correct": 1,
+"r": "Richtig! Blut transportiert diese wichtigen 'Pakete' überall hin."
+},
+{
+"id": 35, "type": "mc", "cat": "Herz",
+"q": "Wie transportiert das Herz das Blut durch deinen Körper?",
+"opts": ["Es saugt es wie ein Staubsauger ein", "Es pumpt es mit jedem Schlag durch die Adern", "Es lässt es einfach fließen", "Es schüttelt das Blut hin und her"], "correct": 1,
+"r": "Genau! Das Herz arbeitet wie eine kräftige Pumpe."
+},
+{
+"id": 36, "type": "mc", "cat": "Herz",
+"q": "Wie oft schlägt ein Herz normalerweise pro Minute, wenn du dich gerade ausruhst?",
+"opts": ["10 Mal", "70 Mal", "200 Mal", "500 Mal"], "correct": 1,
+"r": "Korrekt! In Ruhe schlägt es etwa 70 Mal pro Minute."
+},
+{
+"id": 37, "type": "self", "cat": "Herz",
+"q": "Wo am Körper kannst du deinen Herzschlag besonders gut als Puls fühlen?",
+"a": "Am Handgelenk (oder am Hals).",
+"r": "Richtig! Dort liegen die Adern nah unter der Haut."
+},
+{
+"id": 38, "type": "transfer", "cat": "Herz",
+"context": "Du bist gerade ganz schnell um den Sportplatz gerannt.",
+"q": "Was ist mit deinem Puls passiert?",
+"opts": ["Er ist langsamer geworden", "Er ist gleich geblieben", "Er schlägt jetzt viel schneller", "Er hat ganz aufgehört"], "correct": 2,
+"r": "Richtig! Bei Anstrengung muss das Herz schneller pumpen."
+},
+
+// --- BEREICH: ATMUNG & LUNGE ---
+{
+"id": 39, "type": "mc", "cat": "Atmung",
+"q": "Was nehmen wir beim Einatmen lebensnotwendiges aus der Luft auf?",
+"opts": ["Wasser", "Sauerstoff", "Kohlendioxid", "Stickstoff"], "correct": 1,
+"r": "Richtig! Sauerstoff ist der Treibstoff für deinen Körper."
+},
+{
+"id": 40, "type": "self", "cat": "Atmung",
+"q": "Was passiert mit dem Sauerstoff, nachdem wir ihn eingeatmet haben?",
+"a": "Er wandert durch die Lungenbläschen in das Blut.",
+"r": "Genau! Das Blut verteilt ihn dann im ganzen Körper."
+},
+{
+"id": 41, "type": "transfer", "cat": "Atmung",
+"context": "Du hältst für kurze Zeit die Luft an.",
+"q": "Warum fängt dein Körper nach kurzer Zeit an zu protestieren?",
+"opts": ["Ihm fehlt der Sauerstoff-Nachschub", "Er möchte lieber singen", "Die Lunge wird zu schwer", "Der Magen bekommt Hunger"], "correct": 0,
+"r": "Stimmt! Jede Zelle braucht ständig frischen Sauerstoff."
+},
+{
+"id": 42, "type": "mc", "cat": "Atmung",
+"q": "Welche Stationen durchläuft die Luft beim Einatmen?",
+"opts": ["Mund -> Magen -> Darm", "Mund/Nase -> Luftröhre -> Lunge", "Nase -> Herz -> Blut", "Lunge -> Speiseröhre -> Mund"], "correct": 1,
+"r": "Richtig! Das ist die Autobahn der Luft."
+},
+{
+"id": 43, "type": "mc", "cat": "Atmung",
+"q": "Aus welchen winzigen Bauteilen besteht die Lunge, in denen der Sauerstoff ins Blut wandert?",
+"opts": ["Lungensteine", "Lungenbläschen", "Lungenmuskeln", "Lungenhaare"], "correct": 1,
+"r": "Korrekt! In den Millionen kleinen Bläschen findet der Tausch statt."
+},
+{
+"id": 44, "type": "self", "cat": "Atmung",
+"q": "Wie heißen die winzigen Bläschen in der Lunge?",
+"a": "Lungenbläschen",
+"r": "Richtig! Sie sehen unter dem Mikroskop fast wie kleine Trauben aus."
+},
+{
+"id": 45, "type": "transfer", "cat": "Atmung",
+"context": "Stell dir die Lunge wie einen riesigen Schwamm mit Millionen winziger Luftkammern vor.",
+"q": "Was passiert in diesen Kammern (Lungenbläschen)?",
+"opts": ["Die Luft wird gespeichert", "Sauerstoff geht ins Blut und Kohlendioxid kommt heraus", "Es wird Magensäure hergestellt", "Nichts, sie sind leer"], "correct": 1,
+"r": "Genau! Das ist der Gasaustausch."
+},
+{
+"id": 46, "type": "mc", "cat": "Atmung",
+"q": "Welches Gas atmen wir als 'Abfallprodukt' wieder aus?",
+"opts": ["Sauerstoff", "Stickstoff", "Kohlendioxid", "Helium"], "correct": 2,
+"r": "Richtig! Kohlendioxid braucht der Körper nicht und gibt es ab."
+},
+{
+"id": 47, "type": "self", "cat": "Atmung",
+"q": "Beschreibe den Weg des Kohlendioxids aus dem Körper!",
+"a": "Vom Blut zur Lunge und dann über Mund/Nase nach draußen.",
+"r": "Sehr gut! Das ist das Ende des Atem-Kreislaufs."
+},
+{
+"id": 48, "type": "transfer", "cat": "Atmung",
+"context": "Du hauchst im Winter gegen eine kalte Fensterscheibe.",
+"q": "Was ist in der warmen Luft, die du gerade ausgeatmet hast, hauptsächlich enthalten?",
+"opts": ["Viel frischer Sauerstoff", "Viel Kohlendioxid", "Kleine Nährstoffe", "Blutzellen"], "correct": 1,
+"r": "Richtig! Die verbrauchte Luft enthält das Kohlendioxid."
+},
+
+// --- BEREICH: NIEREN & BLASE ---
+{
+"id": 49, "type": "mc", "cat": "Nieren",
+"q": "Welche wichtige Aufgabe haben deine Nieren?",
+"opts": ["Sie pumpen das Blut", "Sie reinigen das Blut wie eine Kläranlage", "Sie verdauen das Essen", "Sie steuern deine Gefühle"], "correct": 1,
+"r": "Richtig! Die Nieren filtern Abfallstoffe aus deinem Blut."
+},
+{
+"id": 50, "type": "self", "cat": "Nieren",
+"q": "Wie viele Nieren hat ein Mensch normalerweise?",
+"a": "Zwei Nieren.",
+"r": "Genau! Sie sitzen im Rückenbereich links und rechts der Wirbelsäule."
+},
+{
+"id": 51, "type": "transfer", "cat": "Nieren",
+"context": "Stell dir vor, dein Blut ist wie das Wasser in einem Aquarium, das mit der Zeit schmutzig wird.",
+"q": "Welches Organ arbeitet hier wie der Wasserfilter, um das Blut sauber zu halten?",
+"opts": ["Die Lunge", "Das Herz", "Die Nieren", "Der Magen"], "correct": 2,
+"r": "Stimmt! Die Nieren filtern ununterbrochen 'Schmutz' aus dem Blut."
+},
+{
+"id": 52, "type": "mc", "cat": "Nieren",
+"q": "Was entsteht in den Nieren aus den gefilterten Abfallstoffen und Wasser?",
+"opts": ["Speichel", "Harn (Urin)", "Blut", "Schweiß"], "correct": 1,
+"r": "Richtig! Die Abfallstoffe werden im Harn gesammelt."
+},
+{
+"id": 53, "type": "self", "cat": "Nieren",
+"q": "Wie viel Harn scheidet ein Mensch etwa pro Tag aus?",
+"a": "Etwa 1 bis 1,5 Liter.",
+"r": "Richtig! Das hängt auch davon ab, wie viel man trinkt."
+},
+{
+"id": 54, "type": "transfer", "cat": "Nieren",
+"context": "Jemand trinkt an einem heißen Tag sehr viel Wasser.",
+"q": "Was müssen die Nieren dann vermehrt tun?",
+"opts": ["Sie machen Urlaub", "Sie müssen mehr Harn produzieren, um das überschüssige Wasser auszuscheiden", "Sie fangen an zu schwitzen", "Sie hören auf zu filtern"], "correct": 1,
+"r": "Genau! Die Nieren halten den Wasserhaushalt im Gleichgewicht."
+},
+{
+"id": 55, "type": "mc", "cat": "Nieren",
+"q": "Wo wird der fertige Harn gesammelt, bevor du auf die Toilette gehst?",
+"opts": ["Im Magen", "In der Blase", "In der Leber", "In den Muskeln"], "correct": 1,
+"r": "Korrekt! Die Blase ist ein elastischer Sammelbeutel."
+},
+{
+"id": 56, "type": "self", "cat": "Nieren",
+"q": "Warum ist die Blase dehnbar?",
+"a": "Damit sie viel Harn speichern kann, bevor man Harndrang verspürt.",
+"r": "Richtig! Sie funktioniert fast wie ein Luftballon, der sich füllt."
+},
+{
+"id": 57, "type": "transfer", "cat": "Nieren",
+"context": "Deine Blase meldet dir: 'Ich bin voll!'",
+"q": "Was passiert, wenn du jetzt nicht bald zur Toilette gehst?",
+"opts": ["Der Harn wandert zurück zum Herz", "Die Blase dehnt sich immer weiter, bis es unangenehm wird", "Der Harn verschwindet von selbst", "Die Nieren hören auf zu arbeiten"], "correct": 1,
+"r": "Stimmt! Das Nervensystem gibt dir das Signal, die Blase zu leeren."
+},
+
+// --- BEREICH: GEHIRN & NERVEN ---
+{
+"id": 58, "type": "mc", "cat": "Gehirn",
+"q": "Welches Organ arbeitet als die Haupt-Steuerzentrale deines Körpers?",
+"opts": ["Das Herz", "Die Lunge", "Das Gehirn", "Die Leber"], "correct": 2,
+"r": "Richtig! Das Gehirn steuert alles, was du tust, denkst und fühlst."
+},
+{
+"id": 59, "type": "self", "cat": "Gehirn",
+"q": "Nenne zwei Dinge, die dein Gehirn für dich steuert!",
+"a": "Bewegungen, Denken, Gefühle, Atmung, Herzschlag.",
+"r": "Sehr gut! Ohne das Gehirn würde keine einzige Funktion deines Körpers klappen."
+},
+{
+"id": 60, "type": "transfer", "cat": "Gehirn",
+"context": "Stell dir vor, dein Körper ist ein großes Raumschiff.",
+"q": "Welches Bauteil wäre in diesem Vergleich das Gehirn?",
+"opts": ["Der Motor", "Der Treibstofftank", "Der Computer in der Kommandozentrale", "Die Außenhülle"], "correct": 2,
+"r": "Genau! Dort laufen alle Informationen zusammen und Entscheidungen werden getroffen."
+},
+{
+"id": 61, "type": "mc", "cat": "Gehirn",
+"q": "Wodurch wird dein empfindliches Gehirn wie durch einen Helm geschützt?",
+"opts": ["Durch die Haare", "Durch die dicke Haut", "Durch den harten Schädelknochen", "Durch die Ohren"], "correct": 2,
+"r": "Korrekt! Der Schädel ist ein sehr stabiler Knochenschutz."
+},
+{
+"id": 62, "type": "transfer", "cat": "Gehirn",
+"context": "Ein Fahrradfahrer trägt einen Helm, um seinen Kopf zu schützen.",
+"q": "Welchen 'natürlichen Helm' besitzt dein Körper bereits für das Gehirn?",
+"opts": ["Die Augenbrauen", "Den Schädel", "Das Gehirnwasser", "Die Mütze"], "correct": 1,
+"r": "Richtig! Der Schädelknochen umhüllt das Gehirn komplett."
+},
+{
+"id": 63, "type": "mc", "cat": "Gehirn",
+"q": "Über welche 'Leitungen' schickt das Gehirn seine Befehle an die Muskeln?",
+"opts": ["Über die Blutbahnen", "Über die Nerven", "Über die Knochen", "Über die Haare"], "correct": 1,
+"r": "Richtig! Nerven leiten elektrische Signale blitzschnell weiter."
+},
+{
+"id": 64, "type": "self", "cat": "Gehirn",
+"q": "Was ist die Hauptaufgabe der Nerven?",
+"a": "Informationen und Befehle zwischen Gehirn und Körper hin- und herzuschicken.",
+"r": "Genau! Sie verbinden alles miteinander."
+},
+{
+"id": 65, "type": "transfer", "cat": "Gehirn",
+"context": "Du berührst versehentlich eine heiße Herdplatte.",
+"q": "Wie erfährt dein Gehirn so schnell davon, dass es heiß ist?",
+"opts": ["Die Haut ruft laut um Hilfe", "Nerven leiten das Warnsignal blitzschnell zum Gehirn", "Das Blut wird sofort heiß", "Gar nicht, man merkt es erst später"], "correct": 1,
+"r": "Stimmt! Die Nerven sind wie superschnelle Internetkabel in deinem Körper."
+},
+{
+"id": 66, "type": "mc", "cat": "Gehirn",
+"q": "Wie schnell fließen die Informationen durch deine Nerven?",
+"opts": ["So langsam wie eine Schnecke", "Wie ein schneller Läufer", "Blitzschnell (bis zu 400 km/h)", "Wie ein Fahrrad"], "correct": 2,
+"r": "Richtig! Die Signale sind so schnell, dass du Bewegungen fast ohne Verzögerung ausführst."
+},
+{
+"id": 67, "type": "self", "cat": "Gehirn",
+"q": "Warum müssen Nervensignale so schnell sein?",
+"a": "Damit wir sofort auf Gefahren reagieren können (Reflexe) und Bewegungen flüssig sind.",
+"r": "Sehr gut! Geschwindigkeit rettet im Notfall Leben."
+},
+
+// --- BEREICH: SINNESORGANE (AUGE & OHR) ---
+{
+"id": 68, "type": "mc", "cat": "Sinne",
+"q": "Welches Organ fängt Lichtstrahlen ein, damit du Bilder deiner Umwelt sehen kannst?",
+"opts": ["Die Nase", "Das Ohr", "Das Auge", "Die Zunge"], "correct": 2,
+"r": "Richtig! Das Auge wandelt Licht in Informationen um."
+},
+{
+"id": 69, "type": "self", "cat": "Sinne",
+"q": "Über welchen Nerv werden die Bilder vom Auge zum Gehirn geleitet?",
+"a": "Über den Sehnerv.",
+"r": "Genau! Er ist die Datenleitung für alles, was du siehst."
+},
+{
+"id": 70, "type": "transfer", "cat": "Sinne",
+"context": "Stell dir vor, dein Auge wäre eine Fotokamera.",
+"q": "Welches Teil im Auge ist wie der 'Film' oder der 'Sensor', auf dem das Bild entsteht?",
+"opts": ["Die Wimpern", "Die Hornhaut", "Die Netzhaut", "Die Augenbraue"], "correct": 2,
+"r": "Richtig! Auf der Netzhaut im Inneren des Auges wird das Licht eingefangen."
+},
+{
+"id": 71, "type": "self", "cat": "Sinne",
+"q": "Welche zwei Teile schützen dein Auge vor Schweiß und Staub?",
+"a": "Augenbrauen und Augenlider (mit Wimpern).",
+"r": "Stimmt! Sie sind die Schutzschilde für deine empfindlichen Augen."
+},
+{
+"id": 72, "type": "mc", "cat": "Sinne",
+"q": "Was fängt die Ohrmuschel auf, damit wir etwas hören können?",
+"opts": ["Licht", "Schallwellen (Geräusche)", "Wind", "Staub"], "correct": 1,
+"r": "Korrekt! Schallwellen bringen das Trommelfell zum Schwingen."
+},
+{
+"id": 73, "type": "self", "cat": "Sinne",
+"q": "Wie heißt die dünne Haut im Ohr, die wie bei einer Trommel vibriert?",
+"a": "Trommelfell.",
+"r": "Sehr gut! Wenn Schallwellen darauf treffen, fängt es an zu zittern."
+},
+{
+"id": 74, "type": "transfer", "cat": "Sinne",
+"context": "Du stehst weit weg von einer Baustelle und hältst dir die Ohren zu.",
+"q": "Was passiert dabei mit den Schallwellen?",
+"opts": ["Sie werden im Gehirn gelöscht", "Sie werden von den Händen gestoppt und erreichen das Trommelfell nicht", "Sie werden lauter", "Sie verschwinden in der Nase"], "correct": 1,
+"r": "Genau! Du verhinderst, dass die Schwingungen dein Inneres Ohr erreichen."
+},
+
+// --- BEREICH: VERDAUUNG ---
+{
+"id": 75, "type": "mc", "cat": "Verdauung",
+"q": "Wo beginnt der Prozess der Verdauung deines Essens?",
+"opts": ["Im Magen", "Im Mund", "Im Darm", "In der Speiseröhre"], "correct": 1,
+"r": "Richtig! Die Verdauung fängt schon beim Kauen an."
+},
+{
+"id": 76, "type": "self", "cat": "Verdauung",
+"q": "Welche Rolle spielt der Speichel beim Essen?",
+"a": "Er macht die Nahrung rutschig und beginnt, sie chemisch zu zerlegen.",
+"r": "Genau! So lässt sich das Essen leichter herunterschlucken."
+},
+{
+"id": 77, "type": "transfer", "cat": "Verdauung",
+"context": "Du kaust ein Stück trockenes Brot sehr lange im Mund.",
+"q": "Warum fängt es nach einer Weile an, süßlich zu schmecken?",
+"opts": ["Weil das Brot Zucker enthält", "Weil der Speichel anfängt, die Stärke im Brot in Zucker zu verwandeln", "Weil man sich den Geschmack einbildet", "Wegen der Zähne"], "correct": 1,
+"r": "Stimmt! Der Speichel leistet hier schon die erste Verdauungsarbeit."
+},
+{
+"id": 78, "type": "mc", "cat": "Verdauung",
+"q": "Was passiert im Magen mit dem Brei aus Nahrung?",
+"opts": ["Er wird gelagert und mit Magensäure vermischt", "Er wird zu Luft", "Er wird sofort in Knochen verwandelt", "Nichts"], "correct": 0,
+"r": "Richtig! Der Magen knetet den Brei durch und zersetzt ihn weiter."
+},
+{
+"id": 79, "type": "self", "cat": "Verdauung",
+"q": "Welche Flüssigkeit im Magen tötet Bakterien ab und zersetzt das Essen?",
+"a": "Die Magensäure.",
+"r": "Genau! Sie ist sehr aggressiv, damit sie ihre Arbeit gut machen kann."
+},
+{
+"id": 80, "type": "mc", "cat": "Verdauung",
+"q": "In welchem Teil des Darms werden die wertvollen Nährstoffe ins Blut aufgenommen?",
+"opts": ["Im Dickdarm", "Im Blinddarm", "Im Dünndarm", "Im Magen"], "correct": 2,
+"r": "Korrekt! Der Dünndarm ist der wichtigste Ort für die Energieaufnahme."
+},
+{
+"id": 81, "type": "self", "cat": "Verdauung",
+"q": "Was ist die Hauptaufgabe des Dickdarms?",
+"a": "Dem Speisebrei Wasser zu entziehen.",
+"r": "Richtig! Dadurch wird der Rest fest und kann ausgeschieden werden."
+},
+{
+"id": 82, "type": "transfer", "cat": "Verdauung",
+"context": "Stell dir vor, dein Verdauungssystem wäre eine Fabrik, die wertvolle Rohstoffe aus LKWs (Essen) herausholt.",
+"q": "Wo werden die meisten wertvollen Rohstoffe abgeladen, um sie in den Körper zu schicken?",
+"opts": ["In der Speiseröhre", "Im Mund", "Im Dünndarm", "Im Ausgang"], "correct": 2,
+"r": "Genau! Der Dünndarm ist die Haupt-Entladestation für Nährstoffe."
+},
+
+// --- BEREICH: HAUT ---
+
+// --- FAKT: Größtes Organ & Schutz ---
+{
+"id": 83, "type": "mc", "cat": "Haut",
+"q": "Welches ist das flächenmäßig größte Organ deines Körpers?",
+"opts": ["Die Lunge", "Der Darm", "Die Haut", "Die Leber"], "correct": 2,
+"r": "Richtig! Die Haut eines Erwachsenen ist fast 2 Quadratmeter groß."
+},
+{
+"id": 84, "type": "self", "cat": "Haut",
+"q": "Nenne zwei wichtige Aufgaben der Haut!",
+"a": "Schutz (vor Keimen/Sonne) und Temperaturregelung (Schwitzen).",
+"r": "Sehr gut! Sie ist unsere erste Schutzmauer nach außen."
+},
+{
+"id": 85, "type": "transfer", "cat": "Haut",
+"context": "Du hast dir das Knie aufgeschürft.",
+"q": "Warum ist es wichtig, die Wunde sauber zu halten, bis sich neue Haut gebildet hat?",
+"opts": ["Damit es schöner aussieht", "Weil die Schutzbarriere der Haut dort kaputt ist und Keime eindringen können", "Damit man besser rennen kann", "Damit die Hose nicht dreckig wird"], "correct": 1,
+"r": "Genau! Die Haut verhindert normalerweise, dass Bakterien einfach so in den Körper kommen."
+},
+
+// --- FAKT: Aufbau (Schichten) ---
+{
+"id": 86, "type": "self", "cat": "Haut",
+"q": "Wie heißen die drei Schichten der Haut von außen nach innen?",
+"a": "Oberhaut, Lederhaut und Unterhaut.",
+"r": "Richtig! Jede Schicht hat eine ganz eigene Aufgabe."
+},
+{
+"id": 87, "type": "mc", "cat": "Haut",
+"q": "In welcher Hautschicht sitzen die Schweißdrüsen und Haarwurzeln?",
+"opts": ["Oberhaut", "Lederhaut", "Unterhaut", "Knochenhaut"], "correct": 1,
+"r": "Korrekt! Die Lederhaut ist die 'Arbeitsschicht' mit Drüsen und Gefäßen."
+},
+
+// --- FAKT: Temperaturregelung ---
+{
+"id": 88, "type": "mc", "cat": "Haut",
+"q": "Was macht dein Körper über die Haut, wenn dir im Sommer sehr heiß ist?",
+"opts": ["Er bildet eine Kruste", "Er produziert Schweiß zur Abkühlung", "Er wird blau", "Er schaltet sich ab"], "correct": 1,
+"r": "Richtig! Wenn Schweiß auf der Haut trocknet, kühlt das den Körper ab."
+},
+{
+"id": 89, "type": "transfer", "cat": "Haut",
+"context": "Du kommst aus dem kühlen Schwimmbecken und der Wind weht über deine nasse Haut.",
+"q": "Warum fängst du an zu frieren?",
+"opts": ["Weil das Wasser schwer ist", "Weil die Nässe auf der Haut beim Trocknen kühlt", "Weil du Hunger hast", "Weil die Haut schrumpft"], "correct": 1,
+"r": "Genau! Das ist der gleiche Effekt wie beim Schwitzen: Feuchtigkeit auf der Haut kühlt den Körper."
+}
+]
         let userProgress = {};
         let currentSession = [];
         let currIdx = 0;
