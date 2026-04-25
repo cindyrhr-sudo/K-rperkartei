@@ -30,7 +30,7 @@
          */
         #app-scaler {
             width: 640px;
-            min-height: 900px;
+            min-height: 820px;
             transform-origin: top center;
             position: absolute;
             top: 0;
@@ -43,7 +43,7 @@
             display: flex;
             flex-direction: column;
             gap: clamp(4px, 1vw, 12px);
-            min-height: 900px;
+            min-height: 820px;
         }
 
         /* ── Rang ── */
@@ -372,17 +372,19 @@
             position: relative;
         }
         .card-flipped { transform: rotateY(180deg); }
-        .card-face {
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: clamp(8px, 2vw, 32px);
+.card-face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: clamp(8px, 2vw, 32px);
+    will-change: transform;
+    transform: translateZ(0);
         }
         .card-face-back { transform: rotateY(180deg); }
         .card-face-header {
@@ -668,7 +670,7 @@
     // Phase 1: layout compresses via clamp() values
     // Phase 2: once window is smaller than design, scale() kicks in
     const DESIGN_W = 640;
-    const DESIGN_H = 900;
+    const DESIGN_H = 820;
 
     function rescale() {
         const scaler = document.getElementById('app-scaler');
@@ -882,7 +884,7 @@
             document.getElementById('flashcard-ui').classList.remove('hidden');
             const inner = document.getElementById('card-inner-element');
             inner.classList.remove('card-flipped');
-            inner.style.transformStyle = 'preserve-3d';
+
             document.getElementById('self-q').innerText = card.q;
             document.getElementById('self-a').innerText = card.a;
             document.getElementById('self-r').innerText = card.r;
@@ -938,11 +940,9 @@
         title.style.color = isCorrect ? '#059669' : '#e11d48';
     }
 
-    function flipCard() {
-        const inner = document.getElementById('card-inner-element');
-        inner.classList.add('card-flipped');
-        setTimeout(() => { inner.style.transformStyle = 'flat'; }, 600);
-    }
+function flipCard() {
+    document.getElementById('card-inner-element').classList.add('card-flipped');
+}
     function handleResult(correct) { moveCard(correct); handleNext(); }
 
     function moveCard(correct) {
