@@ -7,547 +7,987 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --tafel-gruen: #1e3d2f; }
-        body { 
-            background-color: var(--tafel-gruen); 
-            height: 100vh; 
+
+        html, body {
             margin: 0;
-            overflow: hidden; 
-            touch-action: manipulation; 
-        }
-        
-        .dynamic-text-xs { font-size: clamp(8px, 1.5vw, 10px); }
-        .dynamic-text-xl { font-size: clamp(14px, 4vw, 24px); }
-
-        .status-bubble {
-            border-radius: 0.75rem;
-            border-left: 6px solid;
-            padding: 1rem;
-            transition: all 0.3s ease;
-            font-size: 1.1rem;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--tafel-gruen);
+            touch-action: manipulation;
         }
 
-        .bubble-yellow { background-color: rgba(250, 204, 21, 0.1); border-color: #facc15; color: #facc15; }
-        .bubble-blue   { background-color: rgba(59, 130, 246, 0.1); border-color: #3b82f6; color: #60a5fa; }
-        .bubble-purple { background-color: rgba(168, 85, 247, 0.1); border-color: #a855f7; color: #c084fc; }
-        .bubble-amber  { background-color: rgba(245, 158, 11, 0.1); border-color: #f59e0b; color: #fbbf24; }
-        .bubble-green  { background-color: rgba(134, 166, 135, 0.1); border-color: #86a687; color: #86a687; }
-
-        @keyframes pulse-box {
-            0% { transform: scale(1); }
-            40% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+        /*
+         * SCALING SYSTEM:
+         * #app-scaler is the reference frame. It has a fixed design size (640×900).
+         * JS reads the window size and sets transform: scale() on it so the whole
+         * app scales proportionally when the window gets smaller than the design size.
+         *
+         * BUT before scaling kicks in, the inner layout is flexible:
+         * clamp() values on font/padding/gap let elements compress naturally first.
+         * Only once that's exhausted does the outer scale shrink everything uniformly.
+         */
+        #app-scaler {
+            width: 640px;
+            min-height: 900px;
+            transform-origin: top center;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            translate: -50% 0;
         }
-        .pulse-fast { animation: pulse-box 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-        .perspective { perspective: 1500px; }
-        .card-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; height: 100%; position: relative; }
-        .card-flipped { transform: rotateY(180deg); }
-        .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-        .rotate-y-180 { transform: rotateY(180deg); }
-
-        @keyframes confetti-fall {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        .inner-wrap {
+            padding: clamp(8px, 2vw, 32px);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(4px, 1vw, 12px);
+            min-height: 900px;
         }
-        .confetti { position: absolute; width: 10px; height: 10px; top: -20px; z-index: 210; animation: confetti-fall 3.5s linear forwards; }
 
+        /* ── Rang ── */
+        #rank-display {
+            background-color: rgba(250,204,21,0.2);
+            color: #facc15;
+            text-align: center;
+            font-weight: 900;
+            padding: clamp(4px, 1vw, 16px) clamp(6px, 1.5vw, 16px);
+            border-radius: 8px;
+            border: 1px solid rgba(250,204,21,0.3);
+            border-left: 12px solid rgba(250,204,21,0.4);
+            font-size: clamp(8px, 1.4vw, 13px);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-style: italic;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 0;
+        }
+
+        /* ── Fortschritt ── */
+        .progress-section {
+            background: rgba(0,0,0,0.2);
+            padding: clamp(4px, 1vw, 12px);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(2px, 0.5vw, 6px);
+            flex-shrink: 0;
+        }
+        .progress-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .progress-label {
+            font-size: clamp(7px, 1.1vw, 10px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .progress-value {
+            font-size: clamp(7px, 1.1vw, 10px);
+            font-weight: 900;
+        }
+        .progress-track {
+            width: 100%;
+            height: clamp(3px, 0.5vw, 6px);
+            background: rgba(0,0,0,0.4);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.5s ease;
+        }
+
+        /* ── Boxen ── */
+        .boxes-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(4px, 1vw, 8px);
+            background: rgba(255,255,255,0.05);
+            padding: clamp(4px, 1vw, 16px);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+        }
+        .box-cell {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: clamp(3px, 0.8vw, 10px) clamp(2px, 0.5vw, 8px);
+            border-radius: 8px;
+            min-width: 0;
+            color: white;
+        }
+        .box-label {
+            font-size: clamp(7px, 1.1vw, 10px);
+            font-weight: 700;
+            text-transform: uppercase;
+            opacity: 0.6;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+        .box-count {
+            font-size: clamp(14px, 3vw, 26px);
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        /* ── Main bar ── */
+        .main-bar-track {
+            width: 100%;
+            height: clamp(3px, 0.5vw, 8px);
+            background: rgba(0,0,0,0.4);
+            border-radius: 9999px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
+
+        /* ── Card area ── */
+        .card-area {
+            flex: 1;
+            position: relative;
+            min-height: 0;
+        }
+
+        /* ── Index Card Base ── */
         .index-card {
             background: #fdf5e6;
-            background-image: 
+            background-image:
                 linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
                 radial-gradient(circle, rgba(0,0,0,0.02) 1px, transparent 1px);
             background-size: 100% 2.5rem, 3px 3px;
             border: 1px solid #e5d3b3;
             border-bottom: 3px solid #d4c19d;
             border-right: 2px solid #d4c19d;
-            position: relative;
-            /* DEIN ORIGINALER SCHATTEN */
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1), inset 0 0 40px rgba(0,0,0,0.02);
-            /* TECHNISCHE STABILITÄT */
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* ── Start screen ── */
+        #start-screen {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
             display: flex;
             flex-direction: column;
-            min-height: 0;
+            align-items: center;
+            justify-content: space-between;
+            padding: clamp(8px, 2vw, 32px);
+            text-align: center;
+        }
+        #start-screen.hidden { display: none; }
+        .start-emoji {
+            font-size: clamp(40px, 8vw, 80px);
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .start-title {
+            font-size: clamp(14px, 3vw, 28px);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            color: #334155;
+        }
+        .start-sub {
+            font-size: clamp(10px, 1.8vw, 16px);
+            color: #64748b;
+            font-style: italic;
+            margin-top: 4px;
+        }
+        .start-btn {
+            width: 100%;
+            max-width: 280px;
+            background: #2563eb;
+            color: white;
+            font-size: clamp(12px, 2.5vw, 22px);
+            font-weight: 900;
+            padding: clamp(8px, 1.5vw, 20px);
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: transform 0.1s;
+        }
+        .start-btn:active { transform: scale(0.95); }
+        .reset-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: clamp(8px, 1.2vw, 11px);
+            text-decoration: underline;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.5;
+            margin-top: 4px;
+        }
+        .reset-btn:hover { opacity: 1; }
+
+        /* ── Interactive UI ── */
+        #interactive-ui {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            padding: clamp(8px, 2vw, 24px);
             overflow: hidden;
         }
+        #interactive-ui.hidden { display: none; }
 
-        /* FIX GEGEN NEBEL-EFFEKT (Rückseite) */
-        .rotate-y-180 #self-r {
-            color: #334155 !important; 
-            opacity: 1 !important;
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: clamp(4px, 1vw, 16px);
+            flex-shrink: 0;
+        }
+        .cat-badge {
+            background: #e2e8f0;
+            padding: 2px clamp(4px, 0.8vw, 12px);
+            border-radius: 9999px;
+            font-size: clamp(8px, 1.2vw, 12px);
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #475569;
+        }
+        .type-label {
+            font-size: clamp(8px, 1.2vw, 12px);
+            font-weight: 900;
+            color: #2563eb;
+        }
+        #task-context {
+            background: #eff6ff;
+            padding: clamp(4px, 1vw, 16px);
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+            font-style: italic;
+            font-size: clamp(9px, 1.5vw, 14px);
+            margin-bottom: clamp(4px, 1vw, 16px);
+            flex-shrink: 0;
+        }
+        #task-context.hidden { display: none; }
+        #task-q {
+            font-size: clamp(11px, 2vw, 20px);
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: clamp(4px, 1vw, 16px);
+            flex-shrink: 0;
+            color: #1e293b;
+        }
+        #options-box {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(3px, 0.7vw, 10px);
+            margin-bottom: clamp(4px, 1vw, 12px);
+        }
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: clamp(5px, 1.2vw, 14px) clamp(6px, 1.5vw, 16px);
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            font-size: clamp(9px, 1.6vw, 15px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #1e293b;
+            flex-shrink: 0;
+        }
+        .option-btn:hover { background: #f8fafc; border-color: #94a3b8; }
+
+        #feedback-box {
+            padding: clamp(6px, 1.2vw, 16px);
+            border-radius: 16px;
+            border: 2px solid;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(3px, 0.6vw, 10px);
+            background: white;
+            flex-shrink: 0;
+        }
+        #feedback-box.hidden { display: none; }
+        .feedback-top {
+            display: flex;
+            align-items: center;
+            gap: clamp(4px, 1vw, 16px);
+        }
+        #feedback-icon { font-size: clamp(14px, 2.5vw, 24px); }
+        #feedback-title {
+            font-weight: 900;
+            font-size: clamp(11px, 2vw, 20px);
+        }
+        #task-r {
+            font-size: clamp(9px, 1.5vw, 16px);
             font-weight: 500;
+            color: #475569;
+            line-height: 1.4;
         }
-        .rotate-y-180 #self-cat-back {
-            background-color: #e2e8f0 !important; /* Etwas dunkleres Grau für das Label */
-            color: #1e293b !important;
-            opacity: 1 !important;
+        .next-btn {
+            width: 100%;
+            background: #0f172a;
+            color: white;
+            padding: clamp(6px, 1.2vw, 16px);
+            border-radius: 12px;
+            border: none;
+            font-size: clamp(9px, 1.5vw, 14px);
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s;
         }
-        #self-a {
-            color: #2d4a2e !important; /* Kräftigeres Grün für die Lösung */
-            opacity: 1 !important;
-        }
+        .next-btn:active { transform: scale(0.95); }
 
-        .flying-card {
+        /* ── Flashcard ── */
+        #flashcard-ui {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            perspective: 1500px;
+        }
+        #flashcard-ui.hidden { display: none; }
+        .card-inner {
+            transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+            transform-style: preserve-3d;
+            height: 100%;
+            position: relative;
+        }
+        .card-flipped { transform: rotateY(180deg); }
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: clamp(8px, 2vw, 32px);
+        }
+        .card-face-back { transform: rotateY(180deg); }
+        .card-face-header {
+            position: absolute;
+            top: clamp(6px, 1.5vw, 24px);
+            left: clamp(8px, 2vw, 32px);
+            right: clamp(8px, 2vw, 32px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #self-q {
+            font-size: clamp(12px, 2.5vw, 24px);
+            font-weight: 700;
+            margin-top: clamp(20px, 4vw, 40px);
+            color: #1e293b;
+            line-height: 1.3;
+        }
+        .flip-btn {
+            margin-top: clamp(8px, 2vw, 32px);
+            background: #2563eb;
+            color: white;
+            padding: clamp(6px, 1.2vw, 16px) clamp(12px, 2.5vw, 32px);
+            border-radius: 16px;
+            border: none;
+            font-size: clamp(9px, 1.5vw, 14px);
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .flip-btn:active { transform: scale(0.95); }
+        #self-a {
+            font-size: clamp(12px, 2.5vw, 24px);
+            font-weight: 900;
+            color: #2d4a2e !important;
+            margin-top: clamp(20px, 4vw, 40px);
+            margin-bottom: clamp(4px, 1vw, 12px);
+        }
+        #self-r {
+            font-size: clamp(9px, 1.5vw, 15px);
+            color: #334155;
+            font-style: italic;
+            margin-bottom: clamp(8px, 2vw, 32px);
+            line-height: 1.4;
+        }
+        .result-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(4px, 1vw, 16px);
+            width: 100%;
+        }
+        .result-btn {
+            padding: clamp(6px, 1.5vw, 20px);
+            border-radius: 16px;
+            border: none;
+            color: white;
+            font-size: clamp(9px, 1.5vw, 14px);
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: transform 0.1s;
+        }
+        .result-btn:active { transform: scale(0.95); }
+
+        /* ── Pulse animation ── */
+        @keyframes pulse-box {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .pulse-fast { animation: pulse-box 0.35s cubic-bezier(0.175,0.885,0.32,1.275); }
+
+        /* ── Level-Up Overlay ── */
+        #level-up-overlay {
             position: fixed;
-            pointer-events: none;
-            z-index: 100;
-            transition: all 0.6s cubic-bezier(0.42, 0, 0.58, 1);
+            inset: 0;
+            z-index: 200;
+            background: rgba(0,0,0,0.8);
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 16px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+        }
+        #level-up-overlay.hidden { display: none; }
+        #confetti-area {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
             overflow: hidden;
-            border-radius: 0.5rem;
+        }
+        .level-up-card {
+            background: #facc15;
+            border-radius: 3rem;
+            padding: clamp(16px, 4vw, 40px);
+            max-width: 360px;
+            width: 100%;
+            position: relative;
+            z-index: 220;
+            border: 8px solid white;
+        }
+        .level-up-trophy { font-size: clamp(40px, 8vw, 72px); margin-bottom: 8px; }
+        .level-up-title {
+            font-size: clamp(18px, 4vw, 32px);
+            font-weight: 900;
+            color: #713f12;
+            text-transform: uppercase;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+        #new-rank-name {
+            font-size: clamp(14px, 3vw, 22px);
+            font-weight: 900;
+            color: white;
+            background: rgba(180,120,0,0.2);
+            padding: clamp(8px, 2vw, 16px);
+            border-radius: 16px;
+            border: 2px solid rgba(180,120,0,0.3);
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: clamp(16px, 3vw, 32px);
+        }
+        .level-up-close-btn {
+            width: 100%;
+            background: #0f172a;
+            color: white;
+            font-size: clamp(12px, 2.5vw, 20px);
+            font-weight: 700;
+            padding: clamp(8px, 2vw, 20px);
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .level-up-close-btn:active { transform: scale(0.95); }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+        .confetti {
+            position: absolute;
+            width: 10px; height: 10px;
+            top: -20px;
+            z-index: 210;
+            animation: confetti-fall 3.5s linear forwards;
         }
     </style>
 </head>
-<body class="text-slate-800 font-sans">
+<body>
 
-    <div id="level-up-overlay" class="hidden fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 text-center backdrop-blur-md">
-        <div id="confetti-area" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
-        <div class="bg-yellow-400 rounded-[3rem] p-10 shadow-2xl max-w-sm w-full relative z-[220] border-8 border-white">
-            <div class="text-7xl mb-4">🏆</div>
-            <h2 class="text-3xl font-black text-yellow-900 mb-2 uppercase italic">Neuer Rang!</h2>
-            <div id="new-rank-name" class="text-2xl font-black text-white mb-8 bg-yellow-600/20 py-4 px-2 rounded-2xl border-2 border-yellow-500/30 uppercase tracking-tighter">Rang Name</div>
-            <button onclick="closeLevelUp()" class="w-full bg-slate-900 text-white text-xl font-bold py-5 rounded-2xl active:scale-95 transition-all shadow-xl">WEITER</button>
+    <!-- Level-Up Overlay -->
+    <div id="level-up-overlay" class="hidden">
+        <div id="confetti-area"></div>
+        <div class="level-up-card">
+            <div class="level-up-trophy">🏆</div>
+            <div class="level-up-title">Neuer Rang!</div>
+            <div id="new-rank-name">Rang Name</div>
+            <button class="level-up-close-btn" onclick="closeLevelUp()">WEITER</button>
         </div>
     </div>
 
-    <div class="h-full flex flex-col p-4 md:p-8 max-w-3xl mx-auto overflow-hidden">
-        
-        <div id="rank-display" class="bg-yellow-400/20 text-yellow-400 text-center font-black py-4 rounded-lg border border-l-[12px] border-yellow-400/30 shadow-[0_0_15px_rgba(250,204,21,0.1)] text-[10px] sm:text-xs tracking-[0.2em] uppercase italic shrink-0 mb-4 overflow-hidden">
-            LÄDT... ⏳
-        </div>
+    <!-- Scalable container -->
+    <div id="app-scaler">
+        <div class="inner-wrap">
 
-        <div class="grid grid-cols-4 gap-2 bg-white/5 p-2 sm:p-4 rounded-2xl border border-white/10 mb-4 shadow-xl shrink-0">
-            <div id="box-container-1" class="flex flex-col justify-center text-center text-white bg-blue-500/20 p-2 rounded-lg border border-blue-500/30 min-w-0 aspect-square sm:aspect-auto">
-                <div class="dynamic-text-xs opacity-60 font-bold uppercase truncate">Box 1</div>
-                <div id="box1-count" class="dynamic-text-xl font-black whitespace-nowrap">0</div>
-            </div>
-            <div id="box-container-2" class="flex flex-col justify-center text-center text-white bg-purple-500/20 p-2 rounded-lg border border-purple-500/30 min-w-0 aspect-square sm:aspect-auto">
-                <div class="dynamic-text-xs opacity-60 font-bold uppercase truncate">Box 2</div>
-                <div id="box2-count" class="dynamic-text-xl font-black whitespace-nowrap">0</div>
-            </div>
-            <div id="box-container-3" class="flex flex-col justify-center text-center text-white bg-amber-500/20 p-2 rounded-lg border border-amber-500/30 min-w-0 aspect-square sm:aspect-auto">
-                <div class="dynamic-text-xs opacity-60 font-bold uppercase truncate">Box 3</div>
-                <div id="box3-count" class="dynamic-text-xl font-black whitespace-nowrap">0</div>
-            </div>
-            <div id="box-container-4" class="flex flex-col justify-center text-center p-2 rounded-lg border min-w-0 aspect-square sm:aspect-auto" style="background-color: rgba(122, 156, 123, 0.2); border-color: #7a9c7b; color: #7a9c7b;">
-                <div class="dynamic-text-xs opacity-90 font-bold uppercase italic truncate">Gelernt</div>
-                <div id="box4-count" class="dynamic-text-xl font-black whitespace-nowrap">0</div>
-            </div>
-        </div>
+            <!-- Rang -->
+            <div id="rank-display">LÄDT... ⏳</div>
 
-        <div class="w-full h-2 bg-black/40 rounded-full mb-4 overflow-hidden border border-white/5 shrink-0">
-            <div id="progress-bar" class="h-full bg-yellow-400 transition-all duration-700" style="width: 0%"></div>
-        </div>
-
-        <div class="flex-1 relative min-h-0 z-10">
-            
-            <div id="start-screen" class="index-card rounded-xl shadow-2xl p-6 sm:p-8 flex flex-col items-center justify-between text-center h-full absolute inset-0 z-20">
-                <div id="card-origin" class="text-6xl sm:text-8xl animate-bounce">🦴</div>
-                <div class="space-y-2">
-                    <h2 class="text-xl sm:text-3xl font-black uppercase tracking-tighter text-slate-700">Challenge bereit!</h2>
-                    <p class="text-slate-600 text-sm sm:text-lg leading-relaxed px-4 italic">Wir trainieren heute 10 Karten aus deinen Boxen.</p>
+            <!-- Fortschritt -->
+            <div class="progress-section">
+                <div class="progress-label-row">
+                    <span class="progress-label" style="color:rgba(250,204,21,0.8);">Nächster Rang</span>
+                    <span class="progress-value" id="level-progress-text" style="color:#facc15;">0/10</span>
                 </div>
-                <div class="w-full max-w-xs flex flex-col gap-4">
-                    <button onclick="startSession()" class="w-full bg-blue-600 text-white text-lg sm:text-2xl font-black py-4 sm:py-6 rounded-2xl shadow-lg active:scale-95 transition-all">Sitzung starten</button>
-                    <button onclick="resetProgress()" class="text-slate-400 text-xs underline opacity-50 hover:opacity-100 transition-all uppercase tracking-widest">Fortschritt zurücksetzen</button>
+                <div class="progress-track">
+                    <div id="level-progress-bar" class="progress-fill" style="background:#eab308;width:0%"></div>
+                </div>
+                <div class="progress-label-row" style="margin-top:2px;">
+                    <span class="progress-label" style="color:rgba(255,255,255,0.5);">Gesamtweg zum Profi</span>
+                    <span class="progress-value" id="total-progress-text" style="color:rgba(255,255,255,0.7);">0/89</span>
+                </div>
+                <div class="progress-track">
+                    <div id="total-progress-bar" class="progress-fill" style="background:#3b82f6;width:0%"></div>
                 </div>
             </div>
 
-            <div id="interactive-ui" class="hidden index-card rounded-xl shadow-2xl p-6 flex flex-col h-full absolute inset-0 z-20">
-                <div class="flex justify-between items-center mb-4 shrink-0">
-                    <span id="task-cat" class="bg-slate-200 px-3 py-1 rounded-full text-xs font-bold uppercase">Kategorie</span>
-                    <span id="task-type-label" class="text-xs font-black text-blue-600">MODUS</span>
+            <!-- Boxen -->
+            <div class="boxes-grid">
+                <div class="box-cell" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.3);">
+                    <div class="box-label">Box 1</div>
+                    <div id="box1-count" class="box-count">0</div>
                 </div>
-                <div id="task-context" class="hidden bg-blue-50 p-4 rounded-xl mb-4 italic text-base border-l-4 border-blue-400 shrink-0">Context</div>
-                <h3 id="task-q" class="text-xl font-bold mb-6">Frage?</h3>
-                <div id="options-box" class="space-y-3 mb-6 flex-1 min-h-0 overflow-y-auto"></div>
-                
-                <div id="feedback-box" class="hidden mt-auto p-4 rounded-2xl border-2 flex flex-col gap-3 shrink-0">
-                    <div class="flex items-center gap-4">
-                        <div id="feedback-icon"></div>
-                        <div id="feedback-title" class="font-black text-xl">Feedback</div>
+                <div class="box-cell" style="background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.3);">
+                    <div class="box-label">Box 2</div>
+                    <div id="box2-count" class="box-count">0</div>
+                </div>
+                <div class="box-cell" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.3);">
+                    <div class="box-label">Box 3</div>
+                    <div id="box3-count" class="box-count">0</div>
+                </div>
+                <div class="box-cell" style="background:rgba(122,156,123,0.2);border:1px solid #7a9c7b;color:#7a9c7b;">
+                    <div class="box-label" style="opacity:0.9;font-style:italic;">Gelernt</div>
+                    <div id="box4-count" class="box-count">0</div>
+                </div>
+            </div>
+
+            <!-- Main progress bar -->
+            <div class="main-bar-track">
+                <div id="progress-bar" style="height:100%;background:#facc15;border-radius:9999px;transition:width 0.7s ease;width:0%"></div>
+            </div>
+
+            <!-- Card area -->
+            <div class="card-area">
+
+                <!-- Start Screen -->
+                <div id="start-screen" class="index-card">
+                    <div class="start-emoji">🦴</div>
+                    <div>
+                        <div class="start-title">Challenge bereit!</div>
+                        <div class="start-sub">Wir trainieren heute 10 Karten aus deinen Boxen.</div>
                     </div>
-                    <p id="task-r" class="text-lg font-medium text-slate-700 leading-relaxed"></p>
-                    <button onclick="handleNext()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold">NÄCHSTE KARTE</button>
-                </div>
-            </div>
-
-            <div id="flashcard-ui" class="hidden h-full absolute inset-0 z-20 perspective">
-                <div id="card-inner-element" class="card-inner w-full h-full">
-                    <div class="backface-hidden absolute inset-0 index-card rounded-xl p-8 flex flex-col items-center justify-center text-center">
-                        <div class="absolute top-6 left-8 right-8 flex justify-between items-center w-[calc(100%-4rem)]">
-                            <span id="self-cat" class="bg-slate-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase text-slate-600">Thema</span>
-                            <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Antworten</span>
-                        </div>
-                        <h3 id="self-q" class="text-2xl font-bold mt-10">Frage?</h3>
-                        <button onclick="flipCard()" class="mt-10 bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">ANTWORT ZEIGEN</button>
-                    </div>
-                    <div class="backface-hidden absolute inset-0 index-card rounded-xl p-8 flex flex-col items-center justify-center text-center rotate-y-180">
-                        <div class="absolute top-6 left-8 right-8 flex justify-between items-center w-[calc(100%-4rem)]">
-                            <span id="self-cat-back" class="bg-slate-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase text-slate-600">Thema</span>
-                            <span class="text-[10px] font-black uppercase tracking-widest" style="color: #86a687;">Lösung</span>
-                        </div>
-                        <h4 id="self-a" class="text-2xl font-black mt-10 mb-4" style="color: #86a687;">Antwort</h4>
-                        <p id="self-r" class="text-slate-600 italic mb-10 text-lg"></p>
-                        <div class="grid grid-cols-2 gap-4 w-full">
-                            <button onclick="handleResult(false)" style="background-color: #bc7a7a;" class="text-white py-5 rounded-2xl font-bold shadow-md active:scale-95 transition-all">FALSCH</button>
-                            <button onclick="handleResult(true)" style="background-color: #7a9c7b;" class="text-white py-5 rounded-2xl font-bold shadow-md active:scale-95 transition-all">RICHTIG</button>
-                        </div>
+                    <div style="width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;">
+                        <button class="start-btn" onclick="startSession()">Sitzung starten</button>
+                        <button class="reset-btn" onclick="resetProgress()">Fortschritt zurücksetzen</button>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
+
+                <!-- Interactive UI -->
+                <div id="interactive-ui" class="index-card hidden">
+                    <div class="card-header">
+                        <span id="task-cat" class="cat-badge">Kategorie</span>
+                        <span id="task-type-label" class="type-label">MODUS</span>
+                    </div>
+                    <div id="task-context">Context</div>
+                    <div id="task-q">Frage?</div>
+                    <div id="options-box"></div>
+                    <div id="feedback-box" class="hidden">
+                        <div class="feedback-top">
+                            <div id="feedback-icon"></div>
+                            <div id="feedback-title">Feedback</div>
+                        </div>
+                        <p id="task-r"></p>
+                        <button class="next-btn" onclick="handleNext()">NÄCHSTE KARTE</button>
+                    </div>
+                </div>
+
+                <!-- Flashcard UI -->
+                <div id="flashcard-ui" class="hidden">
+                    <div id="card-inner-element" class="card-inner">
+                        <!-- Front -->
+                        <div class="card-face index-card">
+                            <div class="card-face-header">
+                                <span id="self-cat" class="cat-badge">Thema</span>
+                                <span style="font-size:clamp(8px,1.2vw,10px);font-weight:900;color:#2563eb;text-transform:uppercase;letter-spacing:0.1em;">Antworten</span>
+                            </div>
+                            <div id="self-q">Frage?</div>
+                            <button class="flip-btn" onclick="flipCard()">ANTWORT ZEIGEN</button>
+                        </div>
+                        <!-- Back -->
+                        <div class="card-face card-face-back index-card">
+                            <div class="card-face-header">
+                                <span id="self-cat-back" class="cat-badge">Thema</span>
+                                <span style="font-size:clamp(8px,1.2vw,10px);font-weight:900;color:#7a9c7b;text-transform:uppercase;letter-spacing:0.1em;">Lösung</span>
+                            </div>
+                            <div id="self-a">Antwort</div>
+                            <div id="self-r"></div>
+                            <div class="result-btns">
+                                <button class="result-btn" style="background:#bc7a7a;" onclick="handleResult(false)">Falsch</button>
+                                <button class="result-btn" style="background:#7a9c7b;" onclick="handleResult(true)">Richtig</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /card-area -->
+        </div><!-- /inner-wrap -->
+    </div><!-- /app-scaler -->
 
     <script>
-        const cardsData = [
-{ "id": 1, "type": "mc", "cat": "Wirbelsäule", "q": "Aus wie vielen beweglichen Wirbelknochen besteht deine Wirbelsäule insgesamt?", "opts": ["7 Wirbel", "12 Wirbel", "24 Wirbel", "33 Wirbel"], "correct": 2, "r": "Richtig! Es sind 24 Wirbelknochen, die uns beweglich halten." },
-{ "id": 2, "type": "self", "cat": "Wirbelsäule", "q": "Nenne die drei Abschnitte der Wirbelsäule und die Anzahl ihrer Wirbel!", "a": "Hals (7), Brust (12), Lenden (5)", "r": "Sehr gut! Zusammen ergeben sie die 24 Wirbel deines Rückgrats." },
-{ "id": 3, "type": "transfer", "cat": "Wirbelsäule", "context": "Stell dir vor, deine Wirbelsäule bestünde nur aus einem einzigen, langen Knochenstab.", "q": "Was könntest du dann NICHT mehr tun?", "opts": ["Atmen", "Dich bücken oder drehen", "Essen", "Denken"], "correct": 1, "r": "Richtig! Erst die vielen einzelnen Wirbel machen deinen Rücken biegsam." },
-{ "id": 4, "type": "mc", "cat": "Wirbelsäule", "q": "Wie viele Wirbel bilden den obersten Teil, die Halswirbelsäule?", "opts": ["5 Wirbel", "12 Wirbel", "7 Wirbel", "24 Wirbel"], "correct": 2, "r": "Korrekt! Die Halswirbelsäule besteht aus 7 Wirbeln." },
-{ "id": 5, "type": "mc", "cat": "Wirbelsäule", "q": "Wie viele Wirbelknochen bilden den mittleren Teil, die Brustwirbelsäule?", "opts": ["7 Wirbel", "12 Wirbel", "5 Wirbel", "24 Wirbel"], "correct": 1, "r": "Stimmt genau! Es sind 12 Brustwirbel." },
-{ "id": 6, "type": "mc", "cat": "Wirbelsäule", "q": "Wie viele Wirbel hat die Lendenwirbelsäule im unteren Rücken?", "opts": ["5 Wirbel", "7 Wirbel", "12 Wirbel", "24 Wirbel"], "correct": 0, "r": "Richtig! Die Lendenwirbelsäule besteht aus 5 Wirbeln." },
-{ "id": 7, "type": "mc", "cat": "Wirbelsäule", "q": "Was liegt wie ein kleiner Schwamm zwischen deinen Wirbelknochen?", "opts": ["Muskeln", "Bandscheiben", "Nerven", "Haut"], "correct": 1, "r": "Richtig! Es gibt 23 Bandscheiben in deinem Rücken." },
-{ "id": 8, "type": "self", "cat": "Wirbelsäule", "q": "Welche Aufgabe haben die 23 Bandscheiben?", "a": "Sie federn Druck und Stöße ab (wie Puffer).", "r": "Genau, sie schützen die Wirbel vor Erschütterungen." },
-{ "id": 9, "type": "transfer", "cat": "Wirbelsäule", "context": "Du springst von einer Mauer auf den Boden.", "q": "Welches Bauteil deiner Wirbelsäule verhindert, dass die Knochen dabei hart aufeinander prallen?", "opts": ["Die Rippen", "Die Bandscheiben", "Das Steißbein", "Die Muskeln"], "correct": 1, "r": "Richtig! Die Bandscheiben wirken wie kleine Stoßdämpfer." },
-{ "id": 10, "type": "self", "cat": "Wirbelsäule", "q": "Wie heißen die zwei untersten Abschnitte, an denen die Wirbel fest verwachsen sind?", "a": "Kreuzbein und Steißbein", "r": "Diese bilden den stabilen Abschluss deines Rückgrats." },
-{ "id": 11, "type": "self", "cat": "Gelenke", "q": "Was ist die Hauptaufgabe deiner Gelenke?", "a": "Sie verbinden Knochen und machen uns beweglich.", "r": "Richtig! Ohne Gelenke wäre unser Skelett starr." },
-{ "id": 12, "type": "mc", "cat": "Gelenke", "q": "Welches Gelenk ermöglicht Drehungen in fast alle Richtungen?", "opts": ["Scharniergelenk", "Sattelgelenk", "Kugelgelenk", "Wirbelgelenk"], "correct": 2, "r": "Korrekt! Das Kugelgelenk ist das beweglichste Gelenk." },
-{ "id": 13, "type": "self", "cat": "Gelenke", "q": "Wo in deinem Körper findest du ein Kugelgelenk?", "a": "In der Schulter (oder Hüfte).", "r": "Dort liegt ein runder Gelenkkopf in einer Pfanne." },
-{ "id": 14, "type": "transfer", "cat": "Gelenke", "context": "Ein Erfinder baut eine Puppe, die ihre Arme im Kreis schwingen soll.", "q": "Welche Gelenkform muss er für die Schulter der Puppe wählen?", "opts": ["Sattelgelenk", "Kugelgelenk", "Scharniergelenk", "Bandscheibe"], "correct": 1, "r": "Richtig! Nur das Kugelgelenk erlaubt kreisende Bewegungen." },
-{ "id": 15, "type": "mc", "cat": "Gelenke", "q": "Welches Gelenk funktioniert wie eine Türangel und lässt sich nur beugen und strecken?", "opts": ["Kugelgelenk", "Sattelgelenk", "Scharniergelenk", "Rollgelenk"], "correct": 2, "r": "Richtig! Es heißt Scharniergelenk." },
-{ "id": 16, "type": "self", "cat": "Gelenke", "q": "Nenne ein Beispiel für ein Scharniergelenk!", "a": "Ellenbogengelenk (oder Knie).", "r": "Dort gleitet eine Rolle in einer Vertiefung." },
-{ "id": 17, "type": "transfer", "cat": "Gelenke", "context": "Du versuchst, deinen Ellenbogen zur Seite zu drehen, ohne die Schulter zu bewegen.", "q": "Warum klappt das nicht?", "opts": ["Die Haut ist zu fest", "Das Scharniergelenk erlaubt nur auf und zu", "Der Knochen ist gebrochen", "Die Muskeln schlafen"], "correct": 1, "r": "Genau! Ein Scharniergelenk ist wie eine Tür: nur auf und zu." },
-{ "id": 18, "type": "self", "cat": "Gelenke", "q": "Welche Patient haben die Teile eines Sattelgelenks?", "a": "Sie sind wie ein Reitsattel geformt.", "r": "Richtig! Sie greifen ineinander wie zwei Sättel." },
-{ "id": 19, "type": "transfer", "cat": "Gelenke", "context": "Ohne dieses Gelenk könntest du keinen Stift präzise halten.", "q": "Welches Gelenk am Daumen ermöglicht Bewegungen in zwei Richtungen?", "opts": ["Kugelgelenk", "Scharniergelenk", "Sattelgelenk", "Drehgelenk"], "correct": 2, "r": "Korrekt! Das Sattelgelenk macht den Daumen besonders geschickt." },
-{ "id": 20, "type": "self", "cat": "Kraft", "q": "Wie heißen die drei Kraftarten des Menschen?", "a": "Maximalkraft, Kraftausdauer und Schnellkraft.", "r": "Richtig! Diese drei braucht dein Körper für verschiedene Aufgaben." },
-{ "id": 21, "type": "mc", "cat": "Kraft", "q": "Welche Kraft brauchst du für explosive Bewegungen wie einen Sprint oder einen Sprung?", "opts": ["Laufkraft", "Schnellkraft", "Maximalkraft", "Kraftausdauer"], "correct": 1, "r": "Richtig! Schnellkraft lässt dich in kurzer Zeit viel Gas geben." },
-{ "id": 22, "type": "transfer", "cat": "Kraft", "context": "Eine Ballerina springt beim Ballett hoch in die Luft.", "q": "Welche Kraftart nutzt sie für diesen plötzlichen Sprung?", "opts": ["Kraftausdauer", "Schnellkraft", "Ruhekraft", "Maximalkraft"], "correct": 1, "r": "Richtig! Sprünge benötigen Schnellkraft." },
-{ "id": 23, "type": "mc", "cat": "Kraft", "q": "Was muss passieren, wenn du stärker werden willst?", "opts": ["Man muss weniger trainieren", "Man muss die Belastung für den Körper immer weiter steigern", "Man muss mehr schlafen", "Man muss nur zuschauen"], "correct": 1, "r": "Korrekt! Nur wenn du die Belastung steigerst, wächst die Kraft." },
-{ "id": 24, "type": "self", "cat": "Kraft", "q": "Was schützt Krafttraining in deinem Körper zusätzlich?", "a": "Deine Gelenke und die Haltung.", "r": "Richtig! Starke Muskeln stützen dein gesamtes System." },
-{ "id": 25, "type": "transfer", "cat": "Kraft", "context": "Tim hebt seit einem Jahr jeden Tag die gleiche, leichte Feder hoch.", "q": "Wird er dadurch viel stärker?", "opts": ["Ja, Übung macht den Meister", "Nein, die Belastung wird nicht gesteigert", "Nur wenn es eine schwere Feder ist", "Nur am Wochenende"], "correct": 1, "r": "Stimmt! Ohne Steigerung der Belastung gewöhnt sich der Muskel nur daran." },
-{ "id": 26, "type": "mc", "cat": "Herz", "q": "Wo genau in deiner Brust liegt dein Herz?", "opts": ["Genau in der Mitte", "Ein bisschen versetzt auf der linken Seite", "Ganz weit unten im Bauch", "Auf der rechten Seite"], "correct": 1, "r": "Richtig! Es liegt leicht versetzt auf der linken Seite." },
-{ "id": 27, "type": "self", "cat": "Herz", "q": "Beschreibe die genaue Lage deines Herzens!", "a": "In der Brust, leicht versetzt auf der linken Seite.", "r": "Genau! Dort kannst du es meistens auch am besten klopfen hören." },
-{ "id": 28, "type": "transfer", "cat": "Herz", "context": "Du sollst dir bei der Nationalhymne die Hand auf das Herz legen.", "q": "Wohin genau bewegst du deine Hand?", "opts": ["Auf die rechte Brustseite", "In die Mitte des Bauches", "Leicht nach links auf die Brust", "An den Hals"], "correct": 2, "r": "Richtig! Da das Herz links sitzt, legt man die Hand dorthin." },
-{ "id": 29, "type": "mc", "cat": "Herz", "q": "Welcher Gegenstand hat etwa die gleiche Form und Größe wie dein Herz?", "opts": ["Ein Fußball", "Deine geschlossene Faust", "Ein flacher Teller", "Ein spitzer Bleistift"], "correct": 1, "r": "Korrekt! Dein Herz ist etwa so groß wie deine Faust." },
-{ "id": 30, "type": "self", "cat": "Herz", "q": "Wie groß ist das Herz eines Erwachsenen in Zentimetern?", "a": "Etwa 15 cm lang.", "r": "Richtig! Es wächst mit dem Körper mit." },
-{ "id": 31, "type": "transfer", "cat": "Herz", "context": "Zwei Kinder vergleichen die Größe ihrer Herzen.", "q": "Worauf müssen sie schauen, um zu wissen, wie groß ihr eigenes Herz ungefähr ist?", "opts": ["Auf ihre Schuhgröße", "Auf ihre geschlossene Faust", "Auf ihre Körperlänge", "Auf ihre Nasenspitze"], "correct": 1, "r": "Genau! Die eigene Faust ist ein super Maßstab für das eigene Herz." },
-{ "id": 32, "type": "mc", "cat": "Herz", "q": "Womit muss das Herz alle Organe deines Körpers ständig versorgen?", "opts": ["Nur mit Wasser", "Mit Blut, Sauerstoff und Nährstoffen", "Mit Luft und Müll", "Mit Knochenstücken"], "correct": 1, "r": "Richtig! Das Herz ist der Lieferdienst für deinen Körper." },
-{ "id": 33, "type": "self", "cat": "Herz", "q": "Was ist die Hauptaufgabe des Herzens?", "a": "Die Versorgung aller Organe mit Blut, Sauerstoff und Nährstoffen.", "r": "Stimmt! Ohne diese Versorgung könnten die Organe nicht arbeiten." },
-{ "id": 34, "type": "transfer", "cat": "Herz", "context": "Stell dir vor, das Herz wäre ein Postbote.", "q": "Was sind die Pakete, die er in jede Zelle deines Körpers liefert?", "opts": ["Briefe und Karten", "Sauerstoff und Nährstoffe", "alte Zeitungen", "Steine"], "correct": 1, "r": "Richtig! Blut transportiert diese wichtigen 'Pakete' überall hin." },
-{ "id": 35, "type": "mc", "cat": "Herz", "q": "Wie transportiert das Herz das Blut durch deinen Körper?", "opts": ["Es saugt es wie ein Staubsauger ein", "Es pumpt es mit jedem Schlag durch die Adern", "Es lässt es einfach fließen", "Es schüttelt das Blut hin und her"], "correct": 1, "r": "Genau! Das Herz arbeitet wie eine kräftige Pumpe." },
-{ "id": 36, "type": "mc", "cat": "Herz", "q": "Wie oft schlägt ein Herz normalerweise pro Minute, wenn du dich gerade ausruhst?", "opts": ["10 Mal", "70 Mal", "200 Mal", "500 Mal"], "correct": 1, "r": "Korrekt! In Ruhe schlägt es etwa 70 Mal pro Minute." },
-{ "id": 37, "type": "self", "cat": "Herz", "q": "Wo am Körper kannst du deinen Herzschlag besonders gut als Puls fühlen?", "a": "Am Handgelenk (oder am Hals).", "r": "Richtig! Dort liegen die Adern nah unter der Haut." },
-{ "id": 38, "type": "transfer", "cat": "Herz", "context": "Du bist gerade ganz schnell um den Sportplatz gerannt.", "q": "Was ist mit deinem Puls passiert?", "opts": ["Er ist langsamer geworden", "Er ist gleich geblieben", "Er schlägt jetzt viel schneller", "Er hat ganz aufgehört"], "correct": 2, "r": "Richtig! Bei Anstrengung muss das Herz schneller pumpen." },
-{ "id": 39, "type": "mc", "cat": "Atmung", "q": "Was nehmen wir beim Einatmen lebensnotwendiges aus der Luft auf?", "opts": ["Wasser", "Sauerstoff", "Kohlendioxid", "Stickstoff"], "correct": 1, "r": "Richtig! Sauerstoff ist der Treibstoff für deinen Körper." },
-{ "id": 40, "type": "self", "cat": "Atmung", "q": "Was passiert mit dem Sauerstoff, nachdem wir ihn eingeatmet haben?", "a": "Er wandert durch die Lungenbläschen in das Blut.", "r": "Genau! Das Blut verteilt ihn dann im ganzen Körper." },
-{ "id": 41, "type": "transfer", "cat": "Atmung", "context": "Du hältst für kurze Zeit die Luft an.", "q": "Warum fängt dein Körper nach kurzer Zeit an zu protestieren?", "opts": ["Ihm fehlt der Sauerstoff-Nachschub", "Er möchte lieber singen", "Die Lunge wird zu schwer", "Der Magen bekommt Hunger"], "correct": 0, "r": "Stimmt! Jede Zelle braucht ständig frischen Sauerstoff." },
-{ "id": 42, "type": "mc", "cat": "Atmung", "q": "Welche Stationen durchläuft die Luft beim Einatmen?", "opts": ["Mund -> Magen -> Darm", "Mund/Nase -> Luftröhre -> Lunge", "Nase -> Herz -> Blut", "Lunge -> Speiseröhre -> Mund"], "correct": 1, "r": "Richtig! Das ist die Autobahn der Luft." },
-{ "id": 43, "type": "mc", "cat": "Atmung", "q": "Aus welchen winzigen Bauteilen besteht die Lunge, in denen der Sauerstoff ins Blut wandert?", "opts": ["Lungensteine", "Lungenbläschen", "Lungenmuskeln", "Lungenhaare"], "correct": 1, "r": "Korrekt! In den Millionen kleinen Bläschen findet der Tausch statt." },
-{ "id": 44, "type": "self", "cat": "Atmung", "q": "Wie heißen die winzigen Bläschen in der Lunge?", "a": "Lungenbläschen", "r": "Richtig! Sie sehen unter dem Mikroskop fast wie kleine Trauben aus." },
-{ "id": 45, "type": "transfer", "cat": "Atmung", "context": "Stell dir die Lunge wie einen riesigen Schwamm mit Millionen winziger Luftkammern vor.", "q": "Was passiert in diesen Kammern (Lungenbläschen)?", "opts": ["Die Luft wird gespeichert", "Sauerstoff geht ins Blut und Kohlendioxid kommt heraus", "Es wird Magensäure hergestellt", "Nichts, sie sind leer"], "correct": 1, "r": "Genau! Das ist der Gasaustausch." },
-{ "id": 46, "type": "mc", "cat": "Atmung", "q": "Welches Gas atmen wir als 'Abfallprodukt' wieder aus?", "opts": ["Sauerstoff", "Stickstoff", "Kohlendioxid", "Helium"], "correct": 2, "r": "Richtig! Kohlendioxid braucht der Körper nicht und gibt es ab." },
-{ "id": 47, "type": "self", "cat": "Atmung", "q": "Beschreibe den Weg des Kohlendioxids aus dem Körper!", "a": "Vom Blut zur Lunge und dann über Mund/Nase nach draußen.", "r": "Sehr gut! Das ist das Ende des Atem-Kreislaufs." },
-{ "id": 48, "type": "transfer", "cat": "Atmung", "context": "Du hauchst im Winter gegen eine kalte Fensterscheibe.", "q": "Was ist in der warmen Luft, die du gerade ausgeatmet hast, hauptsächlich enthalten?", "opts": ["Viel frischer Sauerstoff", "Viel Kohlendioxid", "Kleine Nährstoffe", "Blutzellen"], "correct": 1, "r": "Richtig! Die verbrauchte Luft enthält das Kohlendioxid." },
-{ "id": 49, "type": "mc", "cat": "Nieren", "q": "Welche wichtige Aufgabe haben deine Nieren?", "opts": ["Sie pumpen das Blut", "Sie reinigen das Blut wie eine Kläranlage", "Sie verdauen das Essen", "Sie steuern deine Gefühle"], "correct": 1, "r": "Richtig! Die Nieren filtern Abfallstoffe aus deinem Blut." },
-{ "id": 50, "type": "self", "cat": "Nieren", "q": "Wie viele Nieren hat ein Mensch normalerweise?", "a": "Zwei Nieren.", "r": "Genau! Sie sitzen im Rückenbereich links und rechts der Wirbelsäule." },
-{ "id": 51, "type": "transfer", "cat": "Nieren", "context": "Stell dir vor, dein Blut ist wie das Wasser in einem Aquarium, das mit der Zeit schmutzig wird.", "q": "Welches Organ arbeitet hier wie der Wasserfilter, um das Blut sauber zu halten?", "opts": ["Die Lunge", "Das Herz", "Die Nieren", "Der Magen"], "correct": 2, "r": "Stimmt! Die Nieren filtern ununterbrochen 'Schmutz' aus dem Blut." },
-{ "id": 52, "type": "mc", "cat": "Nieren", "q": "Was entsteht in den Nieren aus den gefilterten Abfallstoffen und Wasser?", "opts": ["Speichel", "Harn (Urin)", "Blut", "Schweiß"], "correct": 1, "r": "Richtig! Die Abfallstoffe werden im Harn gesammelt." },
-{ "id": 53, "type": "self", "cat": "Nieren", "q": "Wie viel Harn scheidet ein Mensch etwa pro Tag aus?", "a": "Etwa 1 bis 1,5 Liter.", "r": "Richtig! Das hängt auch davon ab, wie viel man trinkt." },
-{ "id": 54, "type": "transfer", "cat": "Nieren", "context": "Jemand trinkt an einem heißen Tag sehr viel Wasser.", "q": "Was müssen die Nieren dann vermehrt tun?", "opts": ["Sie machen Urlaub", "Sie müssen mehr Harn produzieren, um das überschüssige Wasser auszuscheiden", "Sie fangen an zu schwitzen", "Sie hören auf zu filtern"], "correct": 1, "r": "Genau! Die Nieren halten den Wasserhaushalt im Gleichgewicht." },
-{ "id": 55, "type": "mc", "cat": "Nieren", "q": "Wo wird der fertige Harn gesammelt, bevor du auf die Toilette gehst?", "opts": ["Im Magen", "In der Blase", "In der Leber", "In den Muskeln"], "correct": 1, "r": "Korrekt! Die Blase ist ein elastischer Sammelbeutel." },
-{ "id": 56, "type": "self", "cat": "Nieren", "q": "Warum ist die Blase dehnbar?", "a": "Damit sie viel Harn speichern kann, bevor man Harndrang verspürt.", "r": "Richtig! Sie funktioniert fast wie ein Luftballon, der sich füllt." },
-{ "id": 57, "type": "transfer", "cat": "Nieren", "context": "Deine Blase meldet dir: 'Ich bin voll!'", "q": "Was passiert, wenn du jetzt nicht bald zur Toilette gehst?", "opts": ["Der Harn wandert zurück zum Herz", "Die Blase dehnt sich immer weiter, bis es unangenehm wird", "Der Harn verschwindet von selbst", "Die Nieren hören auf zu arbeiten"], "correct": 1, "r": "Stimmt! Das Nervensystem gibt dir das Signal, die Blase zu leeren." },
-{ "id": 58, "type": "mc", "cat": "Gehirn", "q": "Welches Organ arbeitet als die Haupt-Steuerzentrale deines Körpers?", "opts": ["Das Herz", "Die Lunge", "Das Gehirn", "Die Leber"], "correct": 2, "r": "Richtig! Das Gehirn steuert alles, was du tust, denkst und fühlst." },
-{ "id": 59, "type": "self", "cat": "Gehirn", "q": "Nenne zwei Dinge, die dein Gehirn für dich steuert!", "a": "Bewegungen, Denken, Gefühle, Atmung, Herzschlag.", "r": "Sehr gut! Ohne das Gehirn würde keine einzige Funktion deines Körpers klappen." },
-{ "id": 60, "type": "transfer", "cat": "Gehirn", "context": "Stell dir vor, dein Körper ist ein großes Raumschiff.", "q": "Welches Bauteil wäre in diesem Vergleich das Gehirn?", "opts": ["Der Motor", "Der Treibstofftank", "Der Computer in der Kommandozentrale", "Die Außenhülle"], "correct": 2, "r": "Genau! Dort laufen alle Informationen zusammen und Entscheidungen werden getroffen." },
-{ "id": 61, "type": "mc", "cat": "Gehirn", "q": "Wodurch wird dein empfindliches Gehirn wie durch einen Helm geschützt?", "opts": ["Durch die Haare", "Durch die dicke Haut", "Durch den harten Schädelknochen", "Durch die Ohren"], "correct": 2, "r": "Korrekt! Der Schädel ist ein sehr stabiler Knochenschutz." },
-{ "id": 62, "type": "transfer", "cat": "Gehirn", "context": "Ein Fahrradfahrer trägt einen Helm, um seinen Kopf zu schützen.", "q": "Welchen 'natürlichen Helm' besitzt dein Körper bereits für das Gehirn?", "opts": ["Die Augenbrauen", "Den Schädel", "Das Gehirnwasser", "Die Mütze"], "correct": 1, "r": "Richtig! Der Schädelknochen umhüllt das Gehirn komplett." },
-{ "id": 63, "type": "mc", "cat": "Gehirn", "q": "Über welche 'Leitungen' schickt das Gehirn seine Befehle an die Muskeln?", "opts": ["Über die Blutbahnen", "Über die Nerven", "Über die Knochen", "Über die Haare"], "correct": 1, "r": "Richtig! Nerven leiten elektrische Signale blitzschnell weiter." },
-{ "id": 64, "type": "self", "cat": "Gehirn", "q": "Was ist die Hauptaufgabe der Nerven?", "a": "Informationen und Befehle zwischen Gehirn und Körper hin- und herzuschicken.", "r": "Genau! Sie verbinden alles miteinander." },
-{ "id": 65, "type": "transfer", "cat": "Gehirn", "context": "Du berührst versehentlich eine heiße Herdplatte.", "q": "Wie erfährt dein Gehirn so schnell davon, dass es heiß ist?", "opts": ["Die Haut ruft laut um Hilfe", "Nerven leiten das Warnsignal blitzschnell zum Gehirn", "Das Blut wird sofort heiß", "Gar nicht, man merkt es erst später"], "correct": 1, "r": "Stimmt! Die Nerven sind wie superschnelle Internetkabel in deinem Körper." },
-{ "id": 66, "type": "mc", "cat": "Gehirn", "q": "Wie schnell fließen die Informationen durch deine Nerven?", "opts": ["So langsam wie eine Schnecke", "Wie ein schneller Läufer", "Blitzschnell (bis zu 400 km/h)", "Wie ein Fahrrad"], "correct": 2, "r": "Richtig! Die Signale sind so schnell, dass du Bewegungen fast ohne Verzögerung ausführst." },
-{ "id": 67, "type": "self", "cat": "Gehirn", "q": "Warum müssen Nervensignale so schnell sein?", "a": "Damit wir sofort auf Gefahren reagieren können (Reflexe) und Bewegungen flüssig sind.", "r": "Sehr gut! Geschwindigkeit rettet im Notfall Leben." },
-{ "id": 68, "type": "mc", "cat": "Sinne", "q": "Welches Organ fängt Lichtstrahlen ein, damit du Bilder deiner Umwelt sehen kannst?", "opts": ["Die Nase", "Das Ohr", "Das Auge", "Die Zunge"], "correct": 2, "r": "Richtig! Das Auge wandelt Licht in Informationen um." },
-{ "id": 69, "type": "self", "cat": "Sinne", "q": "Über welchen Nerv werden die Bilder vom Auge zum Gehirn geleitet?", "a": "Über den Sehnerv.", "r": "Genau! Er ist die Datenleitung für alles, was du siehst." },
-{ "id": 70, "type": "transfer", "cat": "Sinne", "context": "Stell dir vor, dein Auge wäre eine Fotokamera.", "q": "Welches Teil im Auge ist wie der 'Film' oder der 'Sensor', auf dem das Bild entsteht?", "opts": ["Die Wimpern", "Die Hornhaut", "Die Netzhaut", "Die Augenbraue"], "correct": 2, "r": "Richtig! Auf der Netzhaut im Inneren des Auges wird das Licht eingefangen." },
-{ "id": 71, "type": "self", "cat": "Sinne", "q": "Welche zwei Teile schützen dein Auge vor Schweiß und Staub?", "a": "Augenbrauen und Augenlider (mit Wimpern).", "r": "Stimmt! Sie sind die Schutzschilde für deine empfindlichen Augen." },
-{ "id": 72, "type": "mc", "cat": "Sinne", "q": "Was fängt die Ohrmuschel auf, damit wir etwas hören können?", "opts": ["Licht", "Schallwellen (Geräusche)", "Wind", "Staub"], "correct": 1, "r": "Korrekt! Schallwellen bringen das Trommelfell zum Schwingen." },
-{ "id": 73, "type": "self", "cat": "Sinne", "q": "Wie heißt die dünne Haut im Ohr, die wie bei einer Trommel vibriert?", "a": "Trommelfell.", "r": "Sehr gut! Wenn Schallwellen darauf treffen, fängt es an zu zittern." },
-{ "id": 74, "type": "transfer", "cat": "Sinne", "context": "Du stehst weit weg von einer Baustelle und hältst dir die Ohren zu.", "q": "Was passiert dabei mit den Schallwellen?", "opts": ["Sie werden im Gehirn gelöscht", "Sie werden von den Händen gestoppt und erreichen das Trommelfell nicht", "Sie werden lauter", "Sie verschwinden in der Nase"], "correct": 1, "r": "Genau! Du verhinderst, dass die Schwingungen dein Inneres Ohr erreichen." },
-{ "id": 75, "type": "mc", "cat": "Verdauung", "q": "Wo beginnt der Prozess der Verdauung deines Essens?", "opts": ["Im Magen", "Im Mund", "Im Darm", "In der Speiseröhre"], "correct": 1, "r": "Richtig! Die Verdauung fängt schon beim Kauen an." },
-{ "id": 76, "type": "self", "cat": "Verdauung", "q": "Welche Rolle spielt der Speichel beim Essen?", "a": "Er macht die Nahrung rutschig und beginnt, sie chemisch zu zerlegen.", "r": "Genau! So lässt sich das Essen leichter herunterschlucken." },
-{ "id": 77, "type": "transfer", "cat": "Verdauung", "context": "Du kaust ein Stück trockenes Brot sehr lange im Mund.", "q": "Warum fängt es nach einer Weile an, süßlich zu schmecken?", "opts": ["Weil das Brot Zucker enthält", "Weil der Speichel anfängt, die Stärke im Brot in Zucker zu verwandeln", "Weil man sich den Geschmack einbildet", "Wegen der Zähne"], "correct": 1, "r": "Stimmt! Der Speichel leistet hier schon die erste Verdauungsarbeit." },
-{ "id": 78, "type": "mc", "cat": "Verdauung", "q": "Was passiert im Magen mit dem Brei aus Nahrung?", "opts": ["Er wird gelagert und mit Magensäure vermischt", "Er wird zu Luft", "Er wird sofort in Knochen verwandelt", "Nichts"], "correct": 0, "r": "Richtig! Der Magen knetet den Brei durch und zersetzt ihn weiter." },
-{ "id": 79, "type": "self", "cat": "Verdauung", "q": "Welche Flüssigkeit im Magen tötet Bakterien ab und zersetzt das Essen?", "a": "Die Magensäure.", "r": "Genau! Sie ist sehr aggressiv, damit sie ihre Arbeit gut machen kann." },
-{ "id": 80, "type": "mc", "cat": "Verdauung", "q": "In welchem Teil des Darms werden die wertvollen Nährstoffe ins Blut aufgenommen?", "opts": ["Im Dickdarm", "Im Blinddarm", "Im Dünndarm", "Im Magen"], "correct": 2, "r": "Korrekt! Der Dünndarm ist der wichtigste Ort für die Energieaufnahme." },
-{ "id": 81, "type": "self", "cat": "Verdauung", "q": "Was ist die Hauptaufgabe des Dickdarms?", "a": "Dem Speisebrei Wasser zu entziehen.", "r": "Richtig! Dadurch wird der Rest fest und kann ausgeschieden werden." },
-{ "id": 82, "type": "transfer", "cat": "Verdauung", "context": "Stell dir vor, dein Verdauungssystem wäre eine Fabrik, die wertvolle Rohstoffe aus LKWs (Essen) herausholt.", "q": "Wo werden die meisten wertvollen Rohstoffe abgeladen, um sie in den Körper zu schicken?", "opts": ["In der Speiseröhre", "Im Mund", "Im Dünndarm", "Im Ausgang"], "correct": 2, "r": "Genau! Der Dünndarm ist die Haupt-Entladestation für Nährstoffe." },
-{ "id": 83, "type": "mc", "cat": "Haut", "q": "Welches ist das flächenmäßig größte Organ deines Körpers?", "opts": ["Die Lunge", "Der Darm", "Die Haut", "Die Leber"], "correct": 2, "r": "Richtig! Die Haut eines Erwachsenen ist fast 2 Quadratmeter groß." },
-{ "id": 84, "type": "self", "cat": "Haut", "q": "Nenne zwei wichtige Aufgaben der Haut!", "a": "Schutz (vor Keimen/Sonne) und Temperaturregelung (Schwitzen).", "r": "Sehr gut! Sie ist unsere erste Schutzmauer nach außen." },
-{ "id": 85, "type": "transfer", "cat": "Haut", "context": "Du hast dir das Knie aufgeschürft.", "q": "Warum ist es wichtig, die Wunde sauber zu halten, bis sich neue Haut gebildet hat?", "opts": ["Damit es schöner aussieht", "Weil die Schutzbarriere der Haut dort kaputt ist und Keime eindringen können", "Damit man besser rennen kann", "Damit die Hose nicht dreckig wird"], "correct": 1, "r": "Genau! Die Haut verhindert normalerweise, dass Bakterien einfach so in den Körper kommen." },
-{ "id": 86, "type": "self", "cat": "Haut", "q": "Wie heißen die drei Schichten der Haut von außen nach innen?", "a": "Oberhaut, Lederhaut und Unterhaut.", "r": "Richtig! Jede Schicht hat eine ganz eigene Aufgabe." },
-{ "id": 87, "type": "mc", "cat": "Haut", "q": "In welcher Hautschicht sitzen die Schweißdrüsen und Haarwurzeln?", "opts": ["Oberhaut", "Lederhaut", "Unterhaut", "Knochenhaut"], "correct": 1, "r": "Korrekt! Die Lederhaut ist die 'Arbeitsschicht' mit Drüsen und Gefäßen." },
-{ "id": 88, "type": "mc", "cat": "Haut", "q": "Was macht dein Körper über die Haut, wenn dir im Sommer sehr heiß ist?", "opts": ["Er bildet eine Kruste", "Er produziert Schweiß zur Abkühlung", "Er wird blau", "Er schaltet sich ab"], "correct": 1, "r": "Richtig! Wenn Schweiß auf der Haut trocknet, kühlt das den Körper ab." },
-{ "id": 89, "type": "transfer", "cat": "Haut", "context": "Du kommst aus dem kühlen Schwimmbecken und der Wind weht über deine nasse Haut.", "q": "Warum fängst du an zu frieren?", "opts": ["Weil das Wasser schwer ist", "Weil die Nässe auf der Haut beim Trocknen kühlt", "Weil du Hunger hast", "Weil die Haut schrumpft"], "correct": 1, "r": "Genau! Das ist der gleiche Effekt wie beim Schwitzen: Feuchtigkeit auf der Haut kühlt den Körper." }
-];
+    // ── SCALING ──────────────────────────────────────────────────
+    // Design size: 640 wide, 900 tall
+    // Phase 1: layout compresses via clamp() values
+    // Phase 2: once window is smaller than design, scale() kicks in
+    const DESIGN_W = 640;
+    const DESIGN_H = 900;
 
-       let userProgress = {};
-        let currentSession = [];
-        let currIdx = 0;
-        let isAnswered = false;
-        let lastRank = "";
+    function rescale() {
+        const scaler = document.getElementById('app-scaler');
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
 
-        // Ränge dynamisch angepasst an die neue Fragenanzahl (89)
-        const ranks = [
-            { threshold: 85, name: "Professor der Anatomie 🎓" },
-            { threshold: 65, name: "Meister der Medizin 🩺" },
-            { threshold: 45, name: "Körper-Profi 🏃‍♂️" },
-            { threshold: 25, name: "Organ-Experte 🫀" },
-            { threshold: 10, name: "Skelett-Spürnase 🦴" },
-            { threshold: 0, name: "Anatomie-Lehrling 🐣" }
-        ];
+        const scaleX = vw / DESIGN_W;
+        const scaleY = vh / DESIGN_H;
+        const scale = Math.min(scaleX, scaleY);
 
-        function init() {
-            const saved = localStorage.getItem('anatomie_profi_final_v1');
-            if (saved) {
-                userProgress = JSON.parse(saved);
-                // Sicherstellen, dass neue Fragen auch im alten Speicherstand landen
-                cardsData.forEach(c => {
-                    if (!userProgress[c.id]) userProgress[c.id] = 1;
-                });
-            } else {
-                cardsData.forEach(c => userProgress[c.id] = 1);
-            }
-            
-            const learned = Object.values(userProgress).filter(v => v === 4).length;
-            const currentRank = ranks.find(r => learned >= r.threshold).name;
-            lastRank = currentRank;
-            updateStats(true);
+        if (scale < 1) {
+            scaler.style.transform = `scale(${scale})`;
+            scaler.style.transformOrigin = 'top center';
+            // center vertically too when very small
+            const scaledH = DESIGN_H * scale;
+            const topOffset = Math.max(0, (vh - scaledH) / 2);
+            scaler.style.top = topOffset + 'px';
+        } else {
+            scaler.style.transform = '';
+            scaler.style.top = '0';
         }
-
-        function updateStats(silent = false) {
-            const counts = {1:0, 2:0, 3:0, 4:0};
-            Object.values(userProgress).forEach(v => counts[v]++);
-            
-            for(let i=1; i<=4; i++) {
-                const el = document.getElementById(`box${i}-count`);
-                if(el) el.innerText = counts[i];
-            }
-            
-            const learned = counts[4];
-            const currentRank = ranks.find(r => learned >= r.threshold).name;
-            
-            // Statistik-Elemente aktualisieren
-            if(document.getElementById('rank-display')) {
-                document.getElementById('rank-display').innerText = currentRank;
-            }
-            
-            // Fortschrittsbalken jetzt dynamisch basierend auf cardsData.length (89)
-            if(document.getElementById('progress-bar')) {
-                const percent = (learned / cardsData.length * 100);
-                document.getElementById('progress-bar').style.width = percent + "%";
-            }
-            
-            if (!silent && currentRank !== lastRank) { 
-                lastRank = currentRank; 
-                showLevelUp(currentRank); 
-            }
-        }
-
-        function startSession() {
-            // Holt zufällige Karten aus den Boxen 1, 2 und 3
-            const getBox = (n) => cardsData.filter(c => userProgress[c.id] === n).sort(() => Math.random() - 0.5);
-            let b1 = getBox(1), b2 = getBox(2), b3 = getBox(3);
-            
-            // Eine Sitzung besteht aus max 10 Karten
-            currentSession = [...b1.slice(0, 5), ...b2.slice(0, 3), ...b3.slice(0, 2)];
-            
-            // Wenn Boxen leer sind, mit anderen Karten auffüllen, die noch nicht "gelernt" (Box 4) sind
-            if (currentSession.length < 10) {
-                const rest = cardsData.filter(c => !currentSession.find(s => s.id === c.id) && userProgress[c.id] < 4).sort(() => Math.random() - 0.5);
-                currentSession = [...currentSession, ...rest.slice(0, 10 - currentSession.length)];
-            }
-            
-            if (currentSession.length === 0) {
-                alert("Du hast bereits alle Karten gemeistert! Setze deinen Fortschritt zurück, um von vorn zu beginnen.");
-                return;
-            }
-            
-            currIdx = 0;
-            document.getElementById('start-screen').classList.add('hidden');
-            showCard();
-        
-        }
-
-        function showCard() {
-            isAnswered = false;
-            const card = currentSession[currIdx];
-            document.getElementById('feedback-box').classList.add('hidden');
-            
-            if (card.type === 'self') {
-                document.getElementById('interactive-ui').classList.add('hidden');
-                document.getElementById('flashcard-ui').classList.remove('hidden');
-                document.getElementById('card-inner-element').classList.remove('card-flipped');
-                document.getElementById('self-q').innerText = card.q;
-                document.getElementById('self-a').innerText = card.a;
-                document.getElementById('self-r').innerText = card.r;
-            } else {
-                document.getElementById('flashcard-ui').classList.add('hidden');
-                document.getElementById('interactive-ui').classList.remove('hidden');
-                document.getElementById('task-cat').innerText = card.cat;
-                document.getElementById('task-type-label').innerText = card.type === 'transfer' ? 'SZENARIO' : 'WISSEN';
-                
-                const ctx = document.getElementById('task-context');
-                if(card.context) { ctx.innerText = "💡 " + card.context; ctx.classList.remove('hidden'); }
-                else ctx.classList.add('hidden');
-                
-                document.getElementById('task-q').innerText = card.q;
-                document.getElementById('task-r').innerText = card.r;
-                
-                const box = document.getElementById('options-box');
-                box.innerHTML = '';
-                card.opts.forEach((opt, idx) => {
-                    const btn = document.createElement('button');
-                    btn.className = "w-full text-left p-5 rounded-2xl border-2 border-slate-100 font-bold transition-all text-lg bg-white shadow-sm active:scale-[0.98]";
-                    btn.innerText = opt;
-                    btn.onclick = () => checkAnswer(idx, btn);
-                    box.appendChild(btn);
-                });
-            }
-        }
-
-       function checkAnswer(idx, btn) {
-    if(isAnswered) return;
-    isAnswered = true;
-    const card = currentSession[currIdx];
-    const correct = idx === card.correct;
-    
-    document.querySelectorAll('#options-box button').forEach((b, i) => {
-        // Grunddesign beibehalten, aber Farben überschreiben
-        b.className = "w-full text-left p-5 rounded-2xl border-2 font-bold text-lg transition-all";
-        
-if(i === card.correct) {
-    b.style.backgroundColor = "rgba(122, 156, 123, 0.25)"; 
-    b.style.borderColor = "#7a9c7b"; 
-    b.style.color = "#1e3d2f"; // Dunkles Tafelgrün für perfekte Lesbarkeit
-} else if(i === idx) {
-    b.style.backgroundColor = "rgba(188, 122, 122, 0.25)"; 
-    b.style.borderColor = "#bc7a7a";
-    b.style.color = "#4a2d2d"; // Dunkleres Rotbraun
-}
-        
-    });
-    
-    // Feedback-Box Titel und Icon
-    document.getElementById('feedback-title').innerText = correct ? "Richtig!" : "Knapp daneben...";
-    
-    const iconEl = document.getElementById('feedback-icon');
-    // Icon Design (Größe/Form) beibehalten, nur Farbe ändern
-    iconEl.className = "w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-2xl";
-    iconEl.style.backgroundColor = correct ? "#7a9c7b" : "#bc7a7a";
-    iconEl.innerText = correct ? "✓" : "✕";
-    
-    updateBox(card.id, correct);
-    document.getElementById('feedback-box').classList.remove('hidden');
-}
-
-        function flipCard() { document.getElementById('card-inner-element').classList.add('card-flipped'); }
-
-        function handleResult(correct) { 
-            updateBox(currentSession[currIdx].id, correct); 
-            handleNext(); 
-        }
-
-        function updateBox(id, correct) {
-            const oldBox = userProgress[id];
-            if(correct) { if(userProgress[id] < 4) userProgress[id]++; }
-            else userProgress[id] = 1;
-            
-            localStorage.setItem('anatomie_profi_final_v1', JSON.stringify(userProgress));
-            
-            // Animation auslösen
-            flyToBox(userProgress[id], correct);
-            updateStats();
-        }
-
-        function flyToBox(targetBoxNum, shouldPulse) {
-            const activeUI = document.querySelector('#interactive-ui:not(.hidden), #flashcard-ui:not(.hidden)');
-            const target = document.getElementById(`box-container-${targetBoxNum}`);
-            if (!activeUI || !target) return;
-
-            const originRect = activeUI.getBoundingClientRect();
-            const targetRect = target.getBoundingClientRect();
-
-            const flyer = document.createElement('div');
-            flyer.className = 'flying-card index-card';
-            flyer.style.width = '100px';
-            flyer.style.height = '140px';
-            flyer.style.left = (originRect.left + originRect.width / 2 - 50) + 'px';
-            flyer.style.top = (originRect.top + originRect.height / 2 - 70) + 'px';
-            flyer.innerHTML = `<div class="text-4xl">📄</div>`;
-            document.body.appendChild(flyer);
-
-            setTimeout(() => {
-                flyer.style.left = (targetRect.left + targetRect.width / 2 - 50) + 'px';
-                flyer.style.top = (targetRect.top + targetRect.height / 2 - 70) + 'px';
-                flyer.style.transform = 'scale(0.1) rotate(45deg)';
-                flyer.style.opacity = '0';
-            }, 50);
-
-            setTimeout(() => {
-                if (shouldPulse) {
-                    const box = document.getElementById(`box-container-${targetBoxNum}`);
-                    box.classList.remove('pulse-fast');
-                    void box.offsetWidth;
-                    box.classList.add('pulse-fast');
-                }
-                flyer.remove();
-            }, 650);
-        }
-
-        function handleNext() {
-            currIdx++;
-            if (currIdx < currentSession.length) {
-                showCard();
-            } else {
-                document.getElementById('interactive-ui').classList.add('hidden');
-                document.getElementById('flashcard-ui').classList.add('hidden');
-                document.getElementById('start-screen').classList.remove('hidden');
-            }
-        }
-
-        function showLevelUp(name) {
-            document.getElementById('new-rank-name').innerText = name;
-            document.getElementById('level-up-overlay').classList.remove('hidden');
-            spawnConfetti();
-        }
-
-        function spawnConfetti() {
-            const area = document.getElementById('confetti-area');
-            for(let i=0; i<40; i++) {
-                setTimeout(() => {
-                    const c = document.createElement('div');
-                    c.className = 'confetti';
-                    c.style.left = Math.random() * 100 + 'vw';
-                    c.style.backgroundColor = ['#fbbf24', '#ffffff', '#34d399', '#f87171'][Math.floor(Math.random()*4)];
-                    area.appendChild(c);
-                    setTimeout(() => c.remove(), 3500);
-                }, i * 50);
-            }
-        }
-
-        function closeLevelUp() { document.getElementById('level-up-overlay').classList.add('hidden'); }
-
-        window.onload = init;
-        function resetProgress() {
-    if(confirm("Möchtest du wirklich alle gelernten Karten löschen?")) {
-        localStorage.removeItem('anatomie_profi_final_v1');
-        location.reload(); // Seite neu laden, um init() neu auszuführen
     }
-}
+
+    window.addEventListener('resize', rescale);
+    rescale();
+
+    // ── APP DATA ──────────────────────────────────────────────────
+    const cardsData = [
+        { "id": 1, "type": "mc", "cat": "Wirbelsäule", "q": "Aus wie vielen beweglichen Wirbelknochen besteht deine Wirbelsäule insgesamt?", "opts": ["7 Wirbel", "12 Wirbel", "24 Wirbel", "33 Wirbel"], "correct": 2, "r": "Richtig! Es sind 24 Wirbelknochen, die uns beweglich halten." },
+        { "id": 2, "type": "self", "cat": "Wirbelsäule", "q": "Nenne die drei Abschnitte der Wirbelsäule und die Anzahl ihrer Wirbel!", "a": "Hals (7), Brust (12), Lenden (5)", "r": "Sehr gut! Zusammen ergeben sie die 24 Wirbel deines Rückgrats." },
+        { "id": 3, "type": "transfer", "cat": "Wirbelsäule", "context": "Stell dir vor, deine Wirbelsäule bestünde nur aus einem einzigen, langen Knochenstab.", "q": "Was könntest du dann NICHT mehr tun?", "opts": ["Atmen", "Dich bücken oder drehen", "Essen", "Denken"], "correct": 1, "r": "Richtig! Erst die vielen einzelnen Wirbel machen deinen Rücken biegsam." },
+        { "id": 4, "type": "mc", "cat": "Wirbelsäule", "q": "Wie viele Wirbel bilden den obersten Teil, die Halswirbelsäule?", "opts": ["5 Wirbel", "12 Wirbel", "7 Wirbel", "24 Wirbel"], "correct": 2, "r": "Korrekt! Die Halswirbelsäule besteht aus 7 Wirbeln." },
+        { "id": 5, "type": "mc", "cat": "Wirbelsäule", "q": "Wie viele Wirbelknochen bilden den mittleren Teil, die Brustwirbelsäule?", "opts": ["7 Wirbel", "12 Wirbel", "5 Wirbel", "24 Wirbel"], "correct": 1, "r": "Stimmt genau! Es sind 12 Brustwirbel." },
+        { "id": 6, "type": "mc", "cat": "Wirbelsäule", "q": "Wie viele Wirbel hat die Lendenwirbelsäule im unteren Rücken?", "opts": ["5 Wirbel", "7 Wirbel", "12 Wirbel", "24 Wirbel"], "correct": 0, "r": "Richtig! Die Lendenwirbelsäule besteht aus 5 Wirbeln." },
+        { "id": 7, "type": "mc", "cat": "Wirbelsäule", "q": "Was liegt wie ein kleiner Schwamm zwischen deinen Wirbelknochen?", "opts": ["Muskeln", "Bandscheiben", "Nerven", "Haut"], "correct": 1, "r": "Richtig! Es gibt 23 Bandscheiben in deinem Rücken." },
+        { "id": 8, "type": "self", "cat": "Wirbelsäule", "q": "Welche Aufgabe haben die 23 Bandscheiben?", "a": "Sie federn Druck und Stöße ab (wie Puffer).", "r": "Genau, sie schützen die Wirbel vor Erschütterungen." },
+        { "id": 9, "type": "transfer", "cat": "Wirbelsäule", "context": "Du springst von einer Mauer auf den Boden.", "q": "Welches Bauteil deiner Wirbelsäule verhindert, dass die Knochen dabei hart aufeinander prallen?", "opts": ["Die Rippen", "Die Bandscheiben", "Das Steißbein", "Die Muskeln"], "correct": 1, "r": "Richtig! Die Bandscheiben wirken wie kleine Stoffdämpfer." },
+        { "id": 10, "type": "self", "cat": "Wirbelsäule", "q": "Wie heißen die zwei untersten Abschnitte, an denen die Wirbel fest verwachsen sind?", "a": "Kreuzbein und Steißbein", "r": "Diese bilden den stabilen Abschluss deines Rückgrats." },
+        { "id": 11, "type": "self", "cat": "Gelenke", "q": "Was ist die Hauptaufgabe deiner Gelenke?", "a": "Sie verbinden Knochen und machen uns beweglich.", "r": "Richtig! Ohne Gelenke wäre unser Skelett starr." },
+        { "id": 12, "type": "mc", "cat": "Gelenke", "q": "Welches Gelenk ermöglicht Drehungen in fast alle Richtungen?", "opts": ["Scharniergelenk", "Sattelgelenk", "Kugelgelenk", "Wirbelgelenk"], "correct": 2, "r": "Korrekt! Das Kugelgelenk ist das beweglichste Gelenk." },
+        { "id": 13, "type": "self", "cat": "Gelenke", "q": "Wo in deinem Körper findest du ein Kugelgelenk?", "a": "In der Schulter (oder Hüfte).", "r": "Dort liegt ein runder Gelenkkopf in einer Pfanne." },
+        { "id": 14, "type": "transfer", "cat": "Gelenke", "context": "Ein Erfinder baut eine Puppe, die ihre Arme im Kreis schwingen soll.", "q": "Welche Gelenkform muss er für die Schulter der Puppe wählen?", "opts": ["Sattelgelenk", "Kugelgelenk", "Scharniergelenk", "Bandscheibe"], "correct": 1, "r": "Richtig! Nur das Kugelgelenk erlaubt kreisende Bewegungen." },
+        { "id": 15, "type": "mc", "cat": "Gelenke", "q": "Welches Gelenk funktioniert wie eine Türangel und lässt sich nur beugen und strecken?", "opts": ["Kugelgelenk", "Sattelgelenk", "Scharniergelenk", "Rollgelenk"], "correct": 2, "r": "Richtig! Es heißt Scharniergelenk." },
+        { "id": 16, "type": "self", "cat": "Gelenke", "q": "Nenne ein Beispiel für ein Scharniergelenk!", "a": "Ellenbogengelenk (oder Knie).", "r": "Dort gleitet eine Rolle in einer Vertiefung." },
+        { "id": 17, "type": "transfer", "cat": "Gelenke", "context": "Du versuchst, deinen Ellenbogen zur Seite zu drehen, ohne die Schulter zu bewegen.", "q": "Warum klappt das nicht?", "opts": ["Die Haut ist zu fest", "Das Scharniergelenk erlaubt nur auf und zu", "Der Knochen ist gebrochen", "Die Muskeln schlafen"], "correct": 1, "r": "Genau! Ein Scharniergelenk ist wie eine Tür: nur auf und zu." },
+        { "id": 18, "type": "self", "cat": "Gelenke", "q": "Welche Form haben die Teile eines Sattelgelenks?", "a": "Sie sind wie ein Reitsattel geformt.", "r": "Richtig! Sie greifen ineinander wie zwei Sättel." },
+        { "id": 19, "type": "transfer", "cat": "Gelenke", "context": "Ohne dieses Gelenk könntest du keinen Stift präzise halten.", "q": "Welches Gelenk am Daumen ermöglicht Bewegungen in zwei Richtungen?", "opts": ["Kugelgelenk", "Scharniergelenk", "Sattelgelenk", "Drehgelenk"], "correct": 2, "r": "Korrekt! Das Sattelgelenk macht den Daumen besonders geschickt." },
+        { "id": 20, "type": "self", "cat": "Kraft", "q": "Wie heißen die drei Kraftarten des Menschen?", "a": "Maximalkraft, Kraftausdauer und Schnellkraft.", "r": "Richtig! Diese drei braucht dein Körper für verschiedene Aufgaben." },
+        { "id": 21, "type": "mc", "cat": "Kraft", "q": "Welche Kraft brauchst du für explosive Bewegungen wie einen Sprint oder einen Sprung?", "opts": ["Laufkraft", "Schnellkraft", "Maximalkraft", "Kraftausdauer"], "correct": 1, "r": "Richtig! Schnellkraft lässt dich in kurzer Zeit viel Gas geben." },
+        { "id": 22, "type": "transfer", "cat": "Kraft", "context": "Eine Ballerina springt beim Ballett hoch in die Luft.", "q": "Welche Kraftart nutzt sie für diesen plötzlichen Sprung?", "opts": ["Kraftausdauer", "Schnellkraft", "Ruhekraft", "Maximalkraft"], "correct": 1, "r": "Richtig! Sprünge benötigen Schnellkraft." },
+        { "id": 23, "type": "mc", "cat": "Kraft", "q": "Was muss passieren, wenn du stärker werden willst?", "opts": ["Man muss weniger trainieren", "Man muss die Belastung für den Körper immer weiter steigern", "Man muss mehr schlafen", "Man muss nur zuschauen"], "correct": 1, "r": "Korrekt! Nur wenn du die Belastung steigerst, wächst die Kraft." },
+        { "id": 24, "type": "self", "cat": "Kraft", "q": "Was schützt Krafttraining in deinem Körper zusätzlich?", "a": "Deine Gelenke und die Haltung.", "r": "Richtig! Starke Muskeln stützen dein gesamtes System." },
+        { "id": 25, "type": "transfer", "cat": "Kraft", "context": "Tim hebt seit einem Jahr jeden Tag die gleiche, leichte Feder hoch.", "q": "Wird er dadurch viel stärker?", "opts": ["Ja, Übung macht den Meister", "Nein, die Belastung wird nicht gesteigert", "Nur wenn es eine schwere Feder ist", "Nur am Wochenende"], "correct": 1, "r": "Stimmt! Ohne Steigerung der Belastung gewöhnt sich der Muskel nur daran." },
+        { "id": 26, "type": "mc", "cat": "Herz", "q": "Wo genau in deiner Brust liegt dein Herz?", "opts": ["Genau in der Mitte", "Ein bisschen versetzt auf der linken Seite", "Ganz weit unten im Bauch", "Auf der rechten Seite"], "correct": 1, "r": "Richtig! Es liegt leicht versetzt auf der linken Seite." },
+        { "id": 27, "type": "self", "cat": "Herz", "q": "Beschreibe die genaue Lage deines Herzens!", "a": "In der Brust, leicht versetzt auf der linken Seite.", "r": "Genau! Dort kannst du es meistens auch am besten klopfen hören." },
+        { "id": 28, "type": "transfer", "cat": "Herz", "context": "Du sollst dir bei der Nationalhymne die Hand auf das Herz legen.", "q": "Wohin genau bewegst du deine Hand?", "opts": ["Auf die rechte Brustseite", "In die Mitte des Bauches", "Leicht nach links auf die Brust", "An den Hals"], "correct": 2, "r": "Richtig! Da das Herz links sitzt, legt man die Hand dorthin." },
+        { "id": 29, "type": "mc", "cat": "Herz", "q": "Welcher Gegenstand hat etwa die gleiche Form und Größe wie dein Herz?", "opts": ["Ein Fußball", "Deine geschlossene Faust", "Ein flacher Teller", "Ein spitzer Bleistift"], "correct": 1, "r": "Korrekt! Dein Herz ist etwa so groß wie deine Faust." },
+        { "id": 30, "type": "self", "cat": "Herz", "q": "Wie groß ist das Herz eines Erwachsenen in Zentimetern?", "a": "Etwa 15 cm lang.", "r": "Richtig! Es wächst mit dem Körper mit." },
+        { "id": 31, "type": "transfer", "cat": "Herz", "context": "Zwei Kinder vergleichen die Größe ihrer Herzen.", "q": "Worauf müssen sie schauen, um zu wissen, wie groß ihr eigenes Herz ungefähr ist?", "opts": ["Auf ihre Schuhgröße", "Auf ihre geschlossene Faust", "Auf ihre Körperlänge", "Auf ihre Nasenspitze"], "correct": 1, "r": "Genau! Die eigene Faust ist ein super Maßstab für das eigene Herz." },
+        { "id": 32, "type": "mc", "cat": "Herz", "q": "Womit muss das Herz alle Organe deines Körpers ständig versorgen?", "opts": ["Nur mit Wasser", "Mit Blut, Sauerstoff und Nährstoffen", "Mit Luft und Müll", "Mit Knochenstücken"], "correct": 1, "r": "Richtig! Das Herz ist der Lieferdienst für deinen Körper." },
+        { "id": 33, "type": "self", "cat": "Herz", "q": "Was ist die Hauptaufgabe des Herzens?", "a": "Die Versorgung aller Organe mit Blut, Sauerstoff und Nährstoffen.", "r": "Stimmt! Ohne diese Versorgung könnten die Organe nicht arbeiten." },
+        { "id": 34, "type": "transfer", "cat": "Herz", "context": "Stell dir vor, das Herz wäre ein Postbote.", "q": "Was sind die Pakete, die er in jede Zelle deines Körpers liefert?", "opts": ["Briefe und Karten", "Sauerstoff und Nährstoffe", "alte Zeitungen", "Steine"], "correct": 1, "r": "Richtig! Blut transportiert diese wichtigen 'Pakete' überall hin." },
+        { "id": 35, "type": "mc", "cat": "Herz", "q": "Wie transportiert das Herz das Blut durch deinen Körper?", "opts": ["Es saugt es wie ein Staubsauger ein", "Es pumpt es mit jedem Schlag durch die Adern", "Es lässt es einfach fließen", "Es schüttelt das Blut hin und her"], "correct": 1, "r": "Genau! Das Herz arbeitet wie eine kräftige Pumpe." },
+        { "id": 36, "type": "mc", "cat": "Herz", "q": "Wie oft schlägt ein Herz normalerweise pro Minute, wenn du dich gerade ausruhst?", "opts": ["10 Mal", "70 Mal", "200 Mal", "500 Mal"], "correct": 1, "r": "Korrekt! In Ruhe schlägt es etwa 70 Mal pro Minute." },
+        { "id": 37, "type": "self", "cat": "Herz", "q": "Wo am Körper kannst du deinen Herzschlag besonders gut als Puls fühlen?", "a": "Am Handgelenk (oder am Hals).", "r": "Richtig! Dort liegen die Adern nah unter der Haut." },
+        { "id": 38, "type": "transfer", "cat": "Herz", "context": "Du bist gerade ganz schnell um den Sportplatz gerannt.", "q": "Was ist mit deinem Puls passiert?", "opts": ["Er ist langsamer geworden", "Er ist gleich geblieben", "Er schlägt jetzt viel schneller", "Er hat ganz aufgehört"], "correct": 2, "r": "Richtig! Bei Anstrengung muss das Herz schneller pumpen." },
+        { "id": 39, "type": "mc", "cat": "Atmung", "q": "Was nehmen wir beim Einatmen lebensnotwendiges aus der Luft auf?", "opts": ["Wasser", "Sauerstoff", "Kohlendioxid", "Stickstoff"], "correct": 1, "r": "Richtig! Sauerstoff ist der Treibstoff für deinen Körper." },
+        { "id": 40, "type": "self", "cat": "Atmung", "q": "Was passiert mit dem Sauerstoff, nachdem wir ihn eingeatmet haben?", "a": "Er wandert durch die Lungenbläschen in das Blut.", "r": "Genau! Das Blut verteilt ihn dann im ganzen Körper." },
+        { "id": 41, "type": "transfer", "cat": "Atmung", "context": "Du hältst für kurze Zeit die Luft an.", "q": "Warum fängt dein Körper nach kurzer Zeit an zu protestieren?", "opts": ["Ihm fehlt der Sauerstoff-Nachschub", "Er möchte lieber singen", "Die Lunge wird zu schwer", "Der Magen bekommt Hunger"], "correct": 0, "r": "Stimmt! Jede Zelle braucht ständig frischen Sauerstoff." },
+        { "id": 42, "type": "mc", "cat": "Atmung", "q": "Welche Stationen durchläuft die Luft beim Einatmen?", "opts": ["Mund -> Magen -> Darm", "Mund/Nase -> Luftröhre -> Lunge", "Nase -> Herz -> Blut", "Lunge -> Speiseröhre -> Mund"], "correct": 1, "r": "Richtig! Das ist die Autobahn der Luft." },
+        { "id": 43, "type": "mc", "cat": "Atmung", "q": "Aus welchen winzigen Bauteilen besteht die Lunge, in denen der Sauerstoff ins Blut wandert?", "opts": ["Lungensteine", "Lungenbläschen", "Lungenmuskeln", "Lungenhaare"], "correct": 1, "r": "Korrekt! In den Millionen kleinen Bläschen findet der Tausch statt." },
+        { "id": 44, "type": "self", "cat": "Atmung", "q": "Wie heißen die winzigen Bläschen in der Lunge?", "a": "Lungenbläschen", "r": "Richtig! Sie sehen unter dem Mikroskop fast wie kleine Trauben aus." },
+        { "id": 45, "type": "transfer", "cat": "Atmung", "context": "Stell dir die Lunge wie einen riesigen Schwamm mit Millionen winziger Luftkammern vor.", "q": "Was passiert in diesen Kammern (Lungenbläschen)?", "opts": ["Die Luft wird gespeichert", "Sauerstoff geht ins Blut und Kohlendioxid kommt heraus", "Es wird Magensäure hergestellt", "Nichts, sie sind leer"], "correct": 1, "r": "Genau! Das ist der Gasaustausch." },
+        { "id": 46, "type": "mc", "cat": "Atmung", "q": "Welches Gas atmen wir als 'Abfallprodukt' wieder aus?", "opts": ["Sauerstoff", "Stickstoff", "Kohlendioxid", "Helium"], "correct": 2, "r": "Richtig! Kohlendioxid braucht der Körper nicht und gibt es ab." },
+        { "id": 47, "type": "self", "cat": "Atmung", "q": "Beschreibe den Weg des Kohlendioxids aus dem Körper!", "a": "Vom Blut zur Lunge und dann über Mund/Nase nach draußen.", "r": "Sehr gut! Das ist das Ende des Atem-Kreislaufs." },
+        { "id": 48, "type": "transfer", "cat": "Atmung", "context": "Du hauchst im Winter gegen eine kalte Fensterscheibe.", "q": "Was ist in der warmen Luft, die du gerade ausgeatmet hast, hauptsächlich enthalten?", "opts": ["Viel frischer Sauerstoff", "Viel Kohlendioxid", "Kleine Nährstoffe", "Blutzellen"], "correct": 1, "r": "Richtig! Die verbrauchte Luft enthält das Kohlendioxid." },
+        { "id": 49, "type": "mc", "cat": "Nieren", "q": "Welche wichtige Aufgabe haben deine Nieren?", "opts": ["Sie pumpen das Blut", "Sie reinigen das Blut wie eine Kläranlage", "Sie verdauen das Essen", "Sie steuern deine Gefühle"], "correct": 1, "r": "Richtig! Die Nieren filtern Abfallstoffe aus deinem Blut." },
+        { "id": 50, "type": "self", "cat": "Nieren", "q": "Wie viele Nieren hat ein Mensch normalerweise?", "a": "Zwei Nieren.", "r": "Genau! Sie sitzen im Rückenbereich links und rechts der Wirbelsäule." },
+        { "id": 51, "type": "transfer", "cat": "Nieren", "context": "Stell dir vor, dein Blut ist wie das Wasser in einem Aquarium, das mit der Zeit schmutzig wird.", "q": "Welches Organ arbeitet hier wie der Wasserfilter, um das Blut sauber zu halten?", "opts": ["Die Lunge", "Das Herz", "Die Nieren", "Der Magen"], "correct": 2, "r": "Stimmt! Die Nieren filtern ununterbrochen 'Schmutz' aus dem Blut." },
+        { "id": 52, "type": "mc", "cat": "Nieren", "q": "Was entsteht in den Nieren aus den gefilterten Abfallstoffen und Wasser?", "opts": ["Speichel", "Harn (Urin)", "Blut", "Schweiß"], "correct": 1, "r": "Richtig! Die Abfallstoffe werden im Harn gesammelt." },
+        { "id": 53, "type": "self", "cat": "Nieren", "q": "Wie viel Harn scheidet ein Mensch etwa pro Tag aus?", "a": "Etwa 1 bis 1,5 Liter.", "r": "Richtig! Das hängt auch davon ab, wie viel man trinkt." },
+        { "id": 54, "type": "transfer", "cat": "Nieren", "context": "Jemand trinkt an einem heißen Tag sehr viel Wasser.", "q": "Was müssen die Nieren dann vermehrt tun?", "opts": ["Sie machen Urlaub", "Sie müssen mehr Harn produzieren, um das überschüssige Wasser auszuscheiden", "Sie fangen an zu schwitzen", "Sie hören auf zu filtern"], "correct": 1, "r": "Genau! Die Nieren halten den Wasserhaushalt im Gleichgewicht." },
+        { "id": 55, "type": "mc", "cat": "Nieren", "q": "Wo wird der fertige Harn gesammelt, bevor du auf die Toilette gehst?", "opts": ["Im Magen", "In der Blase", "In der Leber", "In den Muskeln"], "correct": 1, "r": "Korrekt! Die Blase ist ein elastischer Sammelbeutel." },
+        { "id": 56, "type": "self", "cat": "Nieren", "q": "Warum ist die Blase dehnbar?", "a": "Damit sie viel Harn speichern kann, bevor man Harndrang verspürt.", "r": "Richtig! Sie funktioniert fast wie ein Luftballon, der sich füllt." },
+        { "id": 57, "type": "transfer", "cat": "Nieren", "context": "Deine Blase meldet dir: 'Ich bin voll!'", "q": "Was passiert, wenn du jetzt nicht bald zur Toilette gehst?", "opts": ["Der Harn wandert zurück zum Herz", "Die Blase dehnt sich immer weiter, bis es unangenehm wird", "Der Harn verschwindet von selbst", "Die Nieren hören auf zu arbeiten"], "correct": 1, "r": "Stimmt! Das Nervensystem gibt dir das Signal, die Blase zu leeren." },
+        { "id": 58, "type": "mc", "cat": "Gehirn", "q": "Welches Organ arbeitet als die Haupt-Steuerzentrale deines Körpers?", "opts": ["Das Herz", "Die Lunge", "Das Gehirn", "Die Leber"], "correct": 2, "r": "Richtig! Das Gehirn steuert alles, was du tust, denkst und fühlst." },
+        { "id": 59, "type": "self", "cat": "Gehirn", "q": "Nenne zwei Dinge, die dein Gehirn für dich steuert!", "a": "Bewegungen, Denken, Gefühle, Atmung, Herzschlag.", "r": "Sehr gut! Ohne das Gehirn würde keine einzige Funktion deines Körpers klappen." },
+        { "id": 60, "type": "transfer", "cat": "Gehirn", "context": "Stell dir vor, dein Körper ist ein großes Raumschiff.", "q": "Welches Bauteil wäre in diesem Vergleich das Gehirn?", "opts": ["Der Motor", "Der Treibstofftank", "Der Computer in der Kommandozentrale", "Die Außenhülle"], "correct": 2, "r": "Genau! Dort laufen alle Informationen zusammen und Entscheidungen werden getroffen." },
+        { "id": 61, "type": "mc", "cat": "Gehirn", "q": "Wodurch wird dein empfindliches Gehirn wie durch einen Helm geschützt?", "opts": ["Durch die Haare", "Durch die dicke Haut", "Durch den harten Schädelknochen", "Durch die Ohren"], "correct": 2, "r": "Korrekt! Der Schädel ist ein sehr stabiler Knochenschutz." },
+        { "id": 62, "type": "transfer", "cat": "Gehirn", "context": "Ein Fahrradfahrer trägt einen Helm, um seinen Kopf zu schützen.", "q": "Welchen 'natürlichen Helm' besitzt dein Körper bereits für das Gehirn?", "opts": ["Die Augenbrauen", "Den Schädel", "Das Gehirnwasser", "Die Mütze"], "correct": 1, "r": "Richtig! Der Schädelknochen umhüllt das Gehirn komplett." },
+        { "id": 63, "type": "mc", "cat": "Gehirn", "q": "Über welche 'Leitungen' schickt das Gehirn seine Befehle an die Muskeln?", "opts": ["Über die Blutbahnen", "Über die Nerven", "Über die Knochen", "Über die Haare"], "correct": 1, "r": "Richtig! Nerven leiten elektrische Signale blitzschnell weiter." },
+        { "id": 64, "type": "self", "cat": "Gehirn", "q": "Was ist die Hauptaufgabe der Nerven?", "a": "Informationen und Befehle zwischen Gehirn und Körper hin- und herzuschicken.", "r": "Genau! Sie verbinden alles miteinander." },
+        { "id": 65, "type": "transfer", "cat": "Gehirn", "context": "Du berührst versehentlich eine heiße Herdplatte.", "q": "Wie erfährt dein Gehirn so schnell davon, dass es heiß ist?", "opts": ["Die Haut ruft laut um Hilfe", "Nerven leiten das Warnsignal blitzschnell zum Gehirn", "Das Blut wird sofort heiß", "Gar nicht, man merkt es erst später"], "correct": 1, "r": "Stimmt! Die Nerven sind wie superschnelle Internetkabel in deinem Körper." },
+        { "id": 66, "type": "mc", "cat": "Gehirn", "q": "Wie schnell fließen die Informationen durch deine Nerven?", "opts": ["So langsam wie eine Schnecke", "Wie ein schneller Läufer", "Blitzschnell (bis zu 400 km/h)", "Wie ein Fahrrad"], "correct": 2, "r": "Richtig! Die Signale sind so schnell, dass du Bewegungen fast ohne Verzögerung ausführst." },
+        { "id": 67, "type": "self", "cat": "Gehirn", "q": "Warum müssen Nervensignale so schnell sein?", "a": "Damit wir sofort auf Gefahren reagieren können (Reflexe) und Bewegungen flüssig sind.", "r": "Sehr gut! Geschwindigkeit rettet im Notfall Leben." },
+        { "id": 68, "type": "mc", "cat": "Sinne", "q": "Welches Organ fängt Lichtstrahlen ein, damit du Bilder deiner Umwelt sehen kannst?", "opts": ["Die Nase", "Das Ohr", "Das Auge", "Die Zunge"], "correct": 2, "r": "Richtig! Das Auge wandelt Licht in Informationen um." },
+        { "id": 69, "type": "self", "cat": "Sinne", "q": "Über welchen Nerv werden die Bilder vom Auge zum Gehirn geleitet?", "a": "Über den Sehnerv.", "r": "Genau! Er ist die Datenleitung für alles, was du siehst." },
+        { "id": 70, "type": "transfer", "cat": "Sinne", "context": "Stell dir vor, dein Auge wäre eine Fotokamera.", "q": "Welches Teil im Auge ist wie der 'Film' oder der 'Sensor', auf dem das Bild entsteht?", "opts": ["Die Wimpern", "Die Hornhaut", "Die Netzhaut", "Die Augenbraue"], "correct": 2, "r": "Richtig! Auf der Netzhaut im Inneren des Auges wird das Licht eingefangen." },
+        { "id": 71, "type": "self", "cat": "Sinne", "q": "Welche zwei Teile schützen dein Auge vor Schweiß und Staub?", "a": "Augenbrauen und Augenlider (mit Wimpern).", "r": "Stimmt! Sie sind die Schutzschilde für deine empfindlichen Augen." },
+        { "id": 72, "type": "mc", "cat": "Sinne", "q": "Was fängt die Ohrmuschel auf, damit wir etwas hören können?", "opts": ["Licht", "Schallwellen (Geräusche)", "Wind", "Staub"], "correct": 1, "r": "Korrekt! Schallwellen bringen das Trommelfell zum Schwingen." },
+        { "id": 73, "type": "self", "cat": "Sinne", "q": "Wie heißt die dünne Haut im Ohr, die wie bei einer Trommel vibriert?", "a": "Trommelfell.", "r": "Sehr gut! Wenn Schallwellen darauf treffen, fängt es an zu zittern." },
+        { "id": 74, "type": "transfer", "cat": "Sinne", "context": "Du stehst weit weg von einer Baustelle und hältst dir die Ohren zu.", "q": "Was passiert dabei mit den Schallwellen?", "opts": ["Sie werden im Gehirn gelöscht", "Sie werden von den Händen gestoppt und erreichen das Trommelfell nicht", "Sie werden lauter", "Sie verschwinden in der Nase"], "correct": 1, "r": "Genau! Du verhinderst, dass die Schwingungen dein Inneres Ohr erreichen." },
+        { "id": 75, "type": "mc", "cat": "Verdauung", "q": "Wo beginnt der Prozess der Verdauung deines Essens?", "opts": ["Im Magen", "Im Mund", "Im Darm", "In der Speiseröhre"], "correct": 1, "r": "Richtig! Die Verdauung fängt schon beim Kauen an." },
+        { "id": 76, "type": "self", "cat": "Verdauung", "q": "Welche Rolle spielt der Speichel beim Essen?", "a": "Er macht die Nahrung rutschig und beginnt, sie chemisch zu zerlegen.", "r": "Genau! So lässt sich das Essen leichter herunterschlucken." },
+        { "id": 77, "type": "transfer", "cat": "Verdauung", "context": "Du kaust ein Stück trockenes Brot sehr lange im Mund.", "q": "Warum fängt es nach einer Weile an, süßlich zu schmecken?", "opts": ["Weil das Brot Zucker enthält", "Weil der Speichel anfängt, die Stärke im Brot in Zucker zu verwandeln", "Weil man sich den Geschmack einbildet", "Wegen der Zähne"], "correct": 1, "r": "Stimmt! Der Speichel leistet hier schon die erste Verdauungsarbeit." },
+        { "id": 78, "type": "mc", "cat": "Verdauung", "q": "Was passiert im Magen mit dem Brei aus Nahrung?", "opts": ["Er wird gelagert und mit Magensäure vermischt", "Er wird zu Luft", "Er wird sofort in Knochen verwandelt", "Nichts"], "correct": 0, "r": "Richtig! Der Magen knetet den Brei durch und zersetzt ihn weiter." },
+        { "id": 79, "type": "self", "cat": "Verdauung", "q": "Welche Flüssigkeit im Magen tötet Bakterien ab und zersetzt das Essen?", "a": "Die Magensäure.", "r": "Genau! Sie ist sehr aggressiv, damit sie ihre Arbeit gut machen kann." },
+        { "id": 80, "type": "mc", "cat": "Verdauung", "q": "In welchem Teil des Darms werden die wertvollen Nährstoffe ins Blut aufgenommen?", "opts": ["Im Dickdarm", "Im Blinddarm", "Im Dünndarm", "Im Magen"], "correct": 2, "r": "Korrekt! Der Dünndarm ist der wichtigste Ort für die Energieaufnahme." },
+        { "id": 81, "type": "self", "cat": "Verdauung", "q": "Was ist die Hauptaufgabe des Dickdarms?", "a": "Dem Speisebrei Wasser zu entziehen.", "r": "Richtig! Dadurch wird der Rest fest und kann ausgeschieden werden." },
+        { "id": 82, "type": "transfer", "cat": "Verdauung", "context": "Stell dir vor, dein Verdauungssystem wäre eine Fabrik, die wertvolle Rohstoffe aus LKWs (Essen) herausholt.", "q": "Wo werden die meisten wertvollen Rohstoffe abgeladen, um sie in den Körper zu schicken?", "opts": ["In der Speiseröhre", "Im Mund", "Im Dünndarm", "Im Ausgang"], "correct": 2, "r": "Genau! Der Dünndarm ist die Haupt-Entladestation für Nährstoffe." },
+        { "id": 83, "type": "mc", "cat": "Haut", "q": "Welches ist das flächenmäßig größte Organ deines Körpers?", "opts": ["Die Lunge", "Der Darm", "Die Haut", "Die Leber"], "correct": 2, "r": "Richtig! Die Haut eines Erwachsenen ist fast 2 Quadratmeter groß." },
+        { "id": 84, "type": "self", "cat": "Haut", "q": "Nenne zwei wichtige Aufgaben der Haut!", "a": "Schutz (vor Keimen/Sonne) und Temperaturregelung (Schwitzen).", "r": "Sehr gut! Sie ist unsere erste Schutzmauer nach außen." },
+        { "id": 85, "type": "transfer", "cat": "Haut", "context": "Du hast dir das Knie aufgeschürft.", "q": "Warum ist es wichtig, die Wunde sauber zu halten, bis sich neue Haut gebildet hat?", "opts": ["Damit es schöner aussieht", "Weil die Schutzbarriere der Haut dort kaputt ist und Keime eindringen können", "Damit man besser rennen kann", "Damit die Hose nicht dreckig wird"], "correct": 1, "r": "Genau! Die Haut verhindert normalerweise, dass Bakterien einfach so in den Körper kommen." },
+        { "id": 86, "type": "self", "cat": "Haut", "q": "Wie heißen die drei Schichten der Haut von außen nach innen?", "a": "Oberhaut, Lederhaut und Unterhaut.", "r": "Richtig! Jede Schicht hat eine ganz eigene Aufgabe." },
+        { "id": 87, "type": "mc", "cat": "Haut", "q": "In welcher Hautschicht sitzen die Schweißdrüsen und Haarwurzeln?", "opts": ["Oberhaut", "Lederhaut", "Unterhaut", "Knochenhaut"], "correct": 1, "r": "Korrekt! Die Lederhaut ist die 'Arbeitsschicht' mit Drüsen und Gefäßen." },
+        { "id": 88, "type": "mc", "cat": "Haut", "q": "Was macht dein Körper über die Haut, wenn dir im Sommer sehr heiß ist?", "opts": ["Er bildet eine Kruste", "Er produziert Schweiß zur Abkühlung", "Er wird blau", "Er schaltet sich ab"], "correct": 1, "r": "Richtig! Wenn Schweiß auf der Haut trocknet, kühlt das den Körper ab." },
+        { "id": 89, "type": "transfer", "cat": "Haut", "context": "Du kommst aus dem kühlen Schwimmbecken und der Wind weht über deine nasse Haut.", "q": "Warum fängst du an zu frieren?", "opts": ["Weil das Wasser schwer ist", "Weil die Nässe auf der Haut beim Trocknen kühlt", "Weil du Hunger hast", "Weil die Haut schrumpft"], "correct": 1, "r": "Genau! Das ist der gleiche Effekt wie beim Schwitzen: Feuchtigkeit auf der Haut kühlt den Körper." }
+    ];
+
+    let userProgress = {};
+    let currentSession = [];
+    let currIdx = 0;
+    let isAnswered = false;
+    let lastRankIndex = -1;
+
+    const ranks = [
+        { threshold: 89, name: "Professor der Anatomie 🎓" },
+        { threshold: 70, name: "Meister der Medizin 🩺" },
+        { threshold: 45, name: "Körper-Profi 🏃‍♂️" },
+        { threshold: 25, name: "Organ-Experte 🫀" },
+        { threshold: 10, name: "Skelett-Spürnase 🦴" },
+        { threshold: 0,  name: "Anatomie-Lehrling 🐣" }
+    ];
+
+    function init() {
+        const saved = localStorage.getItem('anatomie_profi_final_v1');
+        if (saved) {
+            userProgress = JSON.parse(saved);
+            cardsData.forEach(c => { if (!userProgress[c.id]) userProgress[c.id] = 1; });
+        } else {
+            cardsData.forEach(c => userProgress[c.id] = 1);
+        }
+        updateStats(true);
+    }
+
+    function updateStats(silent = false) {
+        const counts = {1:0,2:0,3:0,4:0};
+        Object.values(userProgress).forEach(v => counts[v]++);
+        for (let i = 1; i <= 4; i++) {
+            const el = document.getElementById(`box${i}-count`);
+            if (el) {
+                el.innerText = counts[i];
+                el.parentElement.classList.remove('pulse-fast');
+                void el.parentElement.offsetWidth;
+                el.parentElement.classList.add('pulse-fast');
+            }
+        }
+        const learned = counts[4];
+        const total = cardsData.length;
+        let currentRankIndex = ranks.findIndex(r => learned >= r.threshold);
+        const currentRank = ranks[currentRankIndex];
+        const display = document.getElementById('rank-display');
+        if (display) display.innerText = currentRank.name;
+
+        const nextRank = ranks[currentRankIndex - 1];
+        const levelText = document.getElementById('level-progress-text');
+        const levelBar  = document.getElementById('level-progress-bar');
+        if (nextRank) {
+            const curr = currentRank.threshold;
+            const next = nextRank.threshold;
+            const prog = learned - curr;
+            const need = next - curr;
+            levelText.innerText = `${prog}/${need}`;
+            levelBar.style.width = Math.min(100, (prog / need * 100)) + '%';
+        } else {
+            levelText.innerText = 'MAX';
+            levelBar.style.width = '100%';
+            levelBar.style.background = '#22c55e';
+        }
+
+        document.getElementById('total-progress-text').innerText = `${learned}/${total}`;
+        document.getElementById('total-progress-bar').style.width = Math.min(100, (learned / total * 100)) + '%';
+        const pBar = document.getElementById('progress-bar');
+        if (pBar) pBar.style.width = (learned / total * 100) + '%';
+
+        if (!silent && currentRankIndex !== lastRankIndex && lastRankIndex !== -1) {
+            showLevelUp(currentRank.name);
+        }
+        lastRankIndex = currentRankIndex;
+    }
+
+    function startSession() {
+        const getBox = n => cardsData.filter(c => userProgress[c.id] === n).sort(() => Math.random() - 0.5);
+        let b1 = getBox(1), b2 = getBox(2), b3 = getBox(3);
+        currentSession = [...b1.slice(0,5), ...b2.slice(0,3), ...b3.slice(0,2)];
+        if (currentSession.length < 10) {
+            const rest = cardsData.filter(c => !currentSession.find(s => s.id === c.id) && userProgress[c.id] < 4).sort(() => Math.random() - 0.5);
+            currentSession = [...currentSession, ...rest.slice(0, 10 - currentSession.length)];
+        }
+        currIdx = 0;
+        document.getElementById('start-screen').classList.add('hidden');
+        showCard();
+    }
+
+    function showCard() {
+        isAnswered = false;
+        const card = currentSession[currIdx];
+        document.getElementById('feedback-box').classList.add('hidden');
+        if (card.type === 'self') {
+            document.getElementById('interactive-ui').classList.add('hidden');
+            document.getElementById('flashcard-ui').classList.remove('hidden');
+            const inner = document.getElementById('card-inner-element');
+            inner.classList.remove('card-flipped');
+            inner.style.transformStyle = 'preserve-3d';
+            document.getElementById('self-q').innerText = card.q;
+            document.getElementById('self-a').innerText = card.a;
+            document.getElementById('self-r').innerText = card.r;
+            document.getElementById('self-cat').innerText = card.cat;
+            document.getElementById('self-cat-back').innerText = card.cat;
+        } else {
+            document.getElementById('flashcard-ui').classList.add('hidden');
+            document.getElementById('interactive-ui').classList.remove('hidden');
+            document.getElementById('task-cat').innerText = card.cat;
+            document.getElementById('task-type-label').innerText = card.type === 'transfer' ? 'SZENARIO' : 'WISSEN';
+            const ctx = document.getElementById('task-context');
+            if (card.context) { ctx.innerText = '💡 ' + card.context; ctx.classList.remove('hidden'); }
+            else ctx.classList.add('hidden');
+            document.getElementById('task-q').innerText = card.q;
+            document.getElementById('task-r').innerText = card.r;
+            const box = document.getElementById('options-box');
+            box.innerHTML = '';
+            card.opts.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(idx, btn);
+                box.appendChild(btn);
+            });
+        }
+    }
+
+    function checkAnswer(idx, btn) {
+        if (isAnswered) return;
+        isAnswered = true;
+        const card = currentSession[currIdx];
+        const correct = idx === card.correct;
+        if (correct) {
+            btn.style.background = '#10b981';
+            btn.style.color = 'white';
+            btn.style.borderColor = '#059669';
+        } else {
+            btn.style.background = '#f43f5e';
+            btn.style.color = 'white';
+            btn.style.borderColor = '#e11d48';
+        }
+        showFeedback(correct);
+        moveCard(correct);
+    }
+
+    function showFeedback(isCorrect) {
+        const fBox = document.getElementById('feedback-box');
+        fBox.classList.remove('hidden', 'border-emerald-400', 'border-rose-400');
+        fBox.style.borderColor = isCorrect ? '#34d399' : '#fb7185';
+        document.getElementById('feedback-icon').innerText = isCorrect ? '✅' : '❌';
+        const title = document.getElementById('feedback-title');
+        title.innerText = isCorrect ? 'Richtig!' : 'Knapp daneben!';
+        title.style.color = isCorrect ? '#059669' : '#e11d48';
+    }
+
+    function flipCard() {
+        const inner = document.getElementById('card-inner-element');
+        inner.classList.add('card-flipped');
+        setTimeout(() => { inner.style.transformStyle = 'flat'; }, 600);
+    }
+    function handleResult(correct) { moveCard(correct); handleNext(); }
+
+    function moveCard(correct) {
+        const card = currentSession[currIdx];
+        userProgress[card.id] = correct ? Math.min(4, userProgress[card.id] + 1) : 1;
+        localStorage.setItem('anatomie_profi_final_v1', JSON.stringify(userProgress));
+        updateStats();
+    }
+
+    function handleNext() {
+        currIdx++;
+        if (currIdx < currentSession.length) showCard();
+        else {
+            document.getElementById('interactive-ui').classList.add('hidden');
+            document.getElementById('flashcard-ui').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.querySelector('#start-screen .start-title').innerText = 'Gut gemacht!';
+        }
+    }
+
+    function resetProgress() {
+        if (confirm('Wirklich alles zurücksetzen?')) {
+            localStorage.removeItem('anatomie_profi_final_v1');
+            location.reload();
+        }
+    }
+
+    function showLevelUp(rankName) {
+        document.getElementById('level-up-overlay').classList.remove('hidden');
+        document.getElementById('new-rank-name').innerText = rankName;
+        const area = document.getElementById('confetti-area');
+        area.innerHTML = '';
+        for (let i = 0; i < 30; i++) {
+            const c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.left = Math.random() * 100 + '%';
+            c.style.backgroundColor = `hsl(${Math.random()*360},70%,50%)`;
+            c.style.animationDelay = Math.random() * 2 + 's';
+            area.appendChild(c);
+        }
+    }
+
+    function closeLevelUp() { document.getElementById('level-up-overlay').classList.add('hidden'); }
+
+    window.onload = init;
     </script>
 </body>
 </html>
-
