@@ -795,25 +795,33 @@
 "r": "Genau! Das ist der gleiche Effekt wie beim Schwitzen: Feuchtigkeit auf der Haut kühlt den Körper."
 }
 
-        let userProgress = {};
+       let userProgress = {};
         let currentSession = [];
         let currIdx = 0;
         let isAnswered = false;
         let lastRank = "";
 
+        // Ränge dynamisch angepasst an die neue Fragenanzahl (89)
         const ranks = [
-            { threshold: 60, name: "Professor der Anatomie 🎓" },
-            { threshold: 45, name: "Meister der Medizin 🩺" },
-            { threshold: 30, name: "Körper-Profi 🏃‍♂️" },
-            { threshold: 20, name: "Organ-Experte 🫀" },
+            { threshold: 85, name: "Professor der Anatomie 🎓" },
+            { threshold: 65, name: "Meister der Medizin 🩺" },
+            { threshold: 45, name: "Körper-Profi 🏃‍♂️" },
+            { threshold: 25, name: "Organ-Experte 🫀" },
             { threshold: 10, name: "Skelett-Spürnase 🦴" },
             { threshold: 0, name: "Anatomie-Lehrling 🐣" }
         ];
 
         function init() {
             const saved = localStorage.getItem('anatomie_profi_final_v1');
-            if (saved) userProgress = JSON.parse(saved);
-            else cardsData.forEach(c => userProgress[c.id] = 1);
+            if (saved) {
+                userProgress = JSON.parse(saved);
+                // Sicherstellen, dass neue Fragen auch im alten Speicherstand landen
+                cardsData.forEach(c => {
+                    if (!userProgress[c.id]) userProgress[c.id] = 1;
+                });
+            } else {
+                cardsData.forEach(c => userProgress[c.id] = 1);
+            }
             
             const learned = Object.values(userProgress).filter(v => v === 4).length;
             const currentRank = ranks.find(r => learned >= r.threshold).name;
@@ -832,8 +840,17 @@
             
             const learned = counts[4];
             const currentRank = ranks.find(r => learned >= r.threshold).name;
-            document.getElementById('rank-display').innerText = currentRank;
-            document.getElementById('progress-bar').style.width = (learned / 60 * 100) + "%";
+            
+            // Statistik-Elemente aktualisieren
+            if(document.getElementById('rank-display')) {
+                document.getElementById('rank-display').innerText = currentRank;
+            }
+            
+            // Fortschrittsbalken jetzt dynamisch basierend auf cardsData.length (89)
+            if(document.getElementById('progress-bar')) {
+                const percent = (learned / cardsData.length * 100);
+                document.getElementById('progress-bar').style.width = percent + "%";
+            }
             
             if (!silent && currentRank !== lastRank) { 
                 lastRank = currentRank; 
@@ -842,18 +859,28 @@
         }
 
         function startSession() {
+            // Holt zufällige Karten aus den Boxen 1, 2 und 3
             const getBox = (n) => cardsData.filter(c => userProgress[c.id] === n).sort(() => Math.random() - 0.5);
             let b1 = getBox(1), b2 = getBox(2), b3 = getBox(3);
             
+            // Eine Sitzung besteht aus max 10 Karten
             currentSession = [...b1.slice(0, 5), ...b2.slice(0, 3), ...b3.slice(0, 2)];
+            
+            // Wenn Boxen leer sind, mit anderen Karten auffüllen, die noch nicht "gelernt" (Box 4) sind
             if (currentSession.length < 10) {
-                const rest = cardsData.filter(c => !currentSession.includes(c) && userProgress[c.id] < 4).sort(() => Math.random() - 0.5);
+                const rest = cardsData.filter(c => !currentSession.find(s => s.id === c.id) && userProgress[c.id] < 4).sort(() => Math.random() - 0.5);
                 currentSession = [...currentSession, ...rest.slice(0, 10 - currentSession.length)];
+            }
+            
+            if (currentSession.length === 0) {
+                alert("Du hast bereits alle Karten gemeistert! Setze deinen Fortschritt zurück, um von vorn zu beginnen.");
+                return;
             }
             
             currIdx = 0;
             document.getElementById('start-screen').classList.add('hidden');
             showCard();
+        
         }
 
         function showCard() {
