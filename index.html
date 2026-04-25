@@ -133,12 +133,17 @@
         </div>
 
         <div class="flex-1 relative min-h-0 z-10">
-            <div id="start-screen" class="index-card rounded-xl shadow-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center h-full absolute inset-0 z-20">
-                <div id="card-origin" class="text-6xl sm:text-8xl mb-4 sm:mb-6 animate-bounce">🦴</div>
-                <h2 class="text-xl sm:text-3xl font-black mb-2 sm:mb-4 uppercase tracking-tighter text-slate-700">Challenge bereit!</h2>
-                <p class="text-slate-600 mb-6 sm:mb-10 text-sm sm:text-lg leading-relaxed px-4 italic">Wir trainieren heute 10 Karten aus deinen Boxen.</p>
-                <button onclick="startSession()" class="w-full max-w-xs bg-blue-600 text-white text-lg sm:text-2xl font-black py-4 sm:py-6 rounded-2xl shadow-lg active:scale-95 transition-all">Sitzung starten</button>
-            </div>
+           <div id="start-screen" class="index-card rounded-xl shadow-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center h-full absolute inset-0 z-20">
+    <div id="card-origin" class="text-6xl sm:text-8xl mb-4 sm:mb-6 animate-bounce">🦴</div>
+    <h2 class="text-xl sm:text-3xl font-black mb-2 sm:mb-4 uppercase tracking-tighter text-slate-700">Challenge bereit!</h2>
+    <p class="text-slate-600 mb-6 sm:mb-10 text-sm sm:text-lg leading-relaxed px-4 italic">Wir trainieren heute 10 Karten aus deinen Boxen.</p>
+    
+    <button onclick="startSession()" class="w-full max-w-xs bg-blue-600 text-white text-lg sm:text-2xl font-black py-4 sm:py-6 rounded-2xl shadow-lg active:scale-95 transition-all">Sitzung starten</button>
+    
+    <button onclick="resetProgress()" class="mt-6 text-slate-400 text-xs underline opacity-50 hover:opacity-100 transition-all uppercase tracking-widest">
+        Fortschritt zurücksetzen
+    </button>
+</div>
 
             <div id="interactive-ui" class="hidden index-card rounded-xl shadow-2xl p-6 flex flex-col h-full absolute inset-0 z-20 overflow-y-auto">
                 <div class="flex justify-between items-center mb-4">
@@ -529,6 +534,12 @@ if(i === card.correct) {
         function closeLevelUp() { document.getElementById('level-up-overlay').classList.add('hidden'); }
 
         window.onload = init;
+        function resetProgress() {
+    if(confirm("Möchtest du wirklich alle gelernten Karten löschen?")) {
+        localStorage.removeItem('anatomie_profi_final_v1');
+        location.reload(); // Seite neu laden, um init() neu auszuführen
+    }
+}
     </script>
 </body>
 </html>
